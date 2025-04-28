@@ -55,10 +55,6 @@ def train(cfg: DictConfig):
         check_val_every_n_epoch=cfg.trainer.check_val_every_n_epoch,
     )
 
-    if cfg.trainer.find_lr:
-        tuner = Tuner(trainer)
-        tuner.lr_find(pl_module, trn_dataloader)
-
     trainer.fit(pl_module, trn_dataloader, val_dataloader)
 
 

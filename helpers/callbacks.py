@@ -2,6 +2,20 @@ from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 from pytorch_lightning.callbacks import Callback
 from tqdm import tqdm
 
+def get_callbacks(cfg):
+ 
+    checkpoint_cb = ModelCheckpoint(
+        every_n_epochs=cfg.trainer.checkpoint_every_n_epochs,
+    ) # Save only the last checkpoint
+
+    lr_monitor = LearningRateMonitor(logging_interval="epoch")
+    progress_bar = EpochProgressBar()
+
+    callbacks = [checkpoint_cb, lr_monitor, progress_bar]
+
+    return callbacks
+
+
 class EpochProgressBar(Callback):
     def __init__(self):
         super().__init__()
@@ -26,16 +40,3 @@ class EpochProgressBar(Callback):
     def on_train_end(self, trainer, pl_module):
         # Close it cleanly
         self.pbar.close()
-
-def get_callbacks(cfg) -> list:
- 
-    checkpoint_cb = ModelCheckpoint(
-        every_n_epochs=cfg.trainer.checkpoint_every_n_epochs,
-    ) # Save only the last checkpoint
-
-    lr_monitor = LearningRateMonitor(logging_interval="epoch")
-    progress_bar = EpochProgressBar()
-
-    callbacks = [checkpoint_cb, lr_monitor, progress_bar]
-
-    return callbacks

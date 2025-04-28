@@ -18,9 +18,9 @@ logger:
 
 # Data 
 data:
-  subset: 4096 # -1 = disable
+  subset: 6144 # -1 = disable
   trn_frac: 0.9
-  batch_size: 4096
+  batch_size: 6144
   num_workers: 8
   root: /scratch/izar/${username}/netml/data
   prefetch: True # If your compute does not allow it, you can use `prefetch=False`
@@ -30,7 +30,7 @@ data:
 optim:
   lr: 1e-3
   weight_decay: 0.0
-  warmup_epochs: 5
+  warmup_epochs: 10
   plateau_patience: 5
   plateau_factor: 0.5
   min_lr: 1e-6 
@@ -41,10 +41,10 @@ trainer:
   accelerator: gpu
   devices: 1
   checkpoint_every_n_epochs: 250
-  check_val_every_n_epoch: 250
+  check_val_every_n_epoch: 25
   grad_clip: 0.0
   precision: 32
-  find_lr: True
+  find_lr: False
 
 
 # Just to let Hydra know where to save the config file
