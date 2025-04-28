@@ -30,7 +30,10 @@ data:
 optim:
   lr: 1e-3
   weight_decay: 0.0
-
+  warmup_epochs: 5
+  plateau_patience: 5
+  plateau_factor: 0.5
+  min_lr: 1e-6 
 
 # PL trainer 
 trainer:
