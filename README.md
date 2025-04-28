@@ -30,3 +30,11 @@ When you want to overwrite some default config setting, you can do so as follows
 ```bash
 python train.py debug=True data.subset=500
 ```
+
+If you are using logging to W&B, you can view the training progress in the main metrics [overview page](https://wandb.ai/ludekcizinsky/seizure-prediction/workspace?nw=whk83ic2jml).
+
+You can also submit a job to the cluster using the provided Slurm script, just provide your izar username as an argument: 
+
+```bash
+sbatch train.slurm username
+```
