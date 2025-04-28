@@ -18,7 +18,7 @@ logger:
 
 # Data 
 data:
-  subset: 1024
+  subset: -1 # -1 = disable
   trn_frac: 0.9
   batch_size: 512
   num_workers: 8
