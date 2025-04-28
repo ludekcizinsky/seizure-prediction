@@ -1,7 +1,13 @@
-from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
-from pytorch_lightning.callbacks import Callback
 from tqdm import tqdm
+
+from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import Callback
+from pytorch_lightning.utilities import grad_norm
+
+
 import torch
+from torch.nn.utils import clip_grad_norm_
+
 
 def get_callbacks(cfg):
  
@@ -11,8 +17,9 @@ def get_callbacks(cfg):
 
     progress_bar = EpochProgressBar()
     lr_scheduler = WarmupPlateauScheduler(cfg)
+    grad_norm = GradNormWithClip(cfg)
 
-    callbacks = [checkpoint_cb, progress_bar, lr_scheduler]
+    callbacks = [checkpoint_cb, progress_bar, lr_scheduler, grad_norm]
 
     return callbacks
 
@@ -90,3 +97,30 @@ class WarmupPlateauScheduler(Callback):
         warmup_epochs = self.cfg.optim.warmup_epochs
         if epoch >= warmup_epochs:
             self.plateau_scheduler.step(metrics["val/f1"])
+
+
+class GradNormWithClip(Callback):
+    def __init__(self, cfg):
+        """
+        Args:
+            max_norm: the clipping threshold (same semantics as `gradient_clip_val`)
+            norm_type: p-norm degree
+        """
+        self.max_norm = cfg.optim.max_grad_norm
+        self.norm_type = cfg.optim.grad_norm_type
+
+    def on_before_optimizer_step(self, trainer, pl_module, optimizer):
+        # 1) Pre-clip norm from Lightning util
+        norms = grad_norm(pl_module, norm_type=self.norm_type)
+        pre = norms[f"grad_{self.norm_type}_norm_total"]
+
+        # 2) Do the clip ourselves (in-place on p.grad)
+        clip_grad_norm_(pl_module.parameters(), self.max_norm, self.norm_type)
+
+        # 3) Compute post-clip norm from the same util
+        norms_after = grad_norm(pl_module, norm_type=self.norm_type)
+        post = norms_after[f"grad_{self.norm_type}_norm_total"]
+
+        # 4) Log both
+        pl_module.log("optim/grad_norm_preclip", pre, on_epoch=True, on_step=False)
+        pl_module.log("optim/grad_norm_postclip", post, on_epoch=True, on_step=False)

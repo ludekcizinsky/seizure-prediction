@@ -59,14 +59,3 @@ class SeizurePredictor(pl.LightningModule):
         )
 
         return optimizer
-
-    
-    def on_before_optimizer_step(self, optimizer):
-        norm_order = 2.0
-        norms = grad_norm(self, norm_type=norm_order)
-        self.log(
-            "optim/grad_norm",
-            norms[f"grad_{norm_order}_norm_total"],
-            on_step=False,
-            on_epoch=True,
-        )

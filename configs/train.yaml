@@ -37,6 +37,10 @@ optim:
   plateau_factor: 0.5 # reduce by this factor
   min_lr: 1e-6  # minimum learning rate
 
+  # Gradient clipping
+  max_grad_norm: 1.0 # gradient clipping
+  grad_norm_type: 2.0 # norm type for gradient clipping
+
 # PL trainer 
 trainer:
   max_epochs: 1000
