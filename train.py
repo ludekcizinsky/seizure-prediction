@@ -1,30 +1,28 @@
 import hydra
-from omegaconf import DictConfig, OmegaConf
-
 import pytorch_lightning as L
+from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.loggers import WandbLogger
 
 from helpers.callbacks import get_callbacks
 from helpers.dataset import get_dataloaders
 
 
-
 @hydra.main(config_path="configs", config_name="baseline.yaml", version_base="1.1")
 def train(cfg: DictConfig):
 
-    print("-"*50)
+    print("-" * 50)
     print(OmegaConf.to_yaml(cfg))  # print config to verify
-    print("-"*50)
+    print("-" * 50)
 
     L.seed_everything(cfg.seed)
 
     if not cfg.debug:
         logger = WandbLogger(
-            project=cfg.logger.project, 
-            save_dir=f"/scratch/izar/{cfg.username}/outputs/",
-            log_model="all", 
+            project=cfg.logger.project,
+            save_dir=cfg.output_dir,
+            log_model="all",
             tags=cfg.logger.tags,
-            )
+        )
     else:
         logger = None
 
@@ -44,6 +42,7 @@ def train(cfg: DictConfig):
     )
 
     trainer.fit(pl_module, trn_dataloader, val_dataloader)
+
 
 if __name__ == "__main__":
     train()

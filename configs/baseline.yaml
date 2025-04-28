@@ -4,6 +4,7 @@ username: 'cizinsky' # your izar username
 
 seed: 42
 debug: True # to avoid logging into wandb
+output_dir: /scratch/izar/${username}/netml/outputs
 
 
 # w&b parameters
@@ -12,10 +13,11 @@ logger:
   tags: [dev, baseline] # something we can filter by
 
 data:
-  trn_frac: 0.9
-  batch_size: 3024
+  batch_size: 512
   num_workers: 16
-  nca_weights_path: /scratch/izar/${username}/hypernca/pretrained_nca/Flickr+DTD_NCA
+  root: /scratch/izar/${username}/netml/data
+  prefetch: True # If your compute does not allow it, you can use `prefetch=False`
+  signal_transform: fft_filtering
 
 model:
   temb_dim: 256 
@@ -42,6 +44,6 @@ trainer:
 # Just to let Hydra know where to save the config file
 hydra:
   run:
-    dir: /scratch/izar/${username}/outputs/hydra/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: ${output_dir}/${now:%Y-%m-%d}/${now:%H-%M-%S}
   job:
     chdir: False
