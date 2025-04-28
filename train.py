@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 
 import hydra
 import pytorch_lightning as L
@@ -20,6 +21,7 @@ def train(cfg: DictConfig):
 
     L.seed_everything(cfg.seed)
 
+    os.makedirs(cfg.output_dir, exist_ok=True)
     if not cfg.debug:
         logger = WandbLogger(
             project=cfg.logger.project,
@@ -47,7 +49,6 @@ def train(cfg: DictConfig):
         devices=cfg.trainer.devices,
         logger=logger,
         callbacks=callbacks,
-        gradient_clip_val=cfg.trainer.grad_clip,
         deterministic=True,
         precision=cfg.trainer.precision,
         enable_progress_bar=False,

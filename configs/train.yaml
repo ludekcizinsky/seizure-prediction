@@ -1,6 +1,6 @@
 # Most basic config for training a model
 
-# Set the model to use
+# Set the model to use, specify in model directory
 defaults:
   - model: baseline
   - _self_
@@ -8,22 +8,22 @@ defaults:
 # General info
 username: 'cizinsky' # your izar username
 seed: 42
-debug: False # to avoid logging into wandb
-output_dir: /scratch/izar/${username}/netml/outputs
+debug: False # to avoid logging into wandb, instead we log locally using Tensorboard
+output_dir: /scratch/izar/${username}/netml/outputs # will be created if it doesn't exist
 
 # w&b 
 logger:
-  project: seizure-prediction
-  tags: [dev, baseline] # something we can filter by
+  project: seizure-prediction # name of the project in wandb, accessible to public
+  tags: [dev, baseline] # practical when trying to filter experiments
 
 # Data 
 data:
-  subset: -1 # -1 = disable
+  subset: -1 # -1 = disable, else int, we have around 11k samples
   trn_frac: 0.9
   batch_size: 5000
   num_workers: 18
-  root: /scratch/izar/${username}/netml/data
-  prefetch: True 
+  root: /scratch/izar/${username}/netml/data # path to the data
+  prefetch: True # should be always true, unless you are on your laptop
   signal_transform: fft_filtering
 
 # Optimisation
@@ -44,9 +44,7 @@ trainer:
   devices: 1
   checkpoint_every_n_epochs: 250
   check_val_every_n_epoch: 25
-  grad_clip: 1
   precision: 32
-  find_lr: False
 
 
 # Just to let Hydra know where to save the config file
