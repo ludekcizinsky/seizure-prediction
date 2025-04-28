@@ -18,22 +18,24 @@ logger:
 
 # Data 
 data:
-  subset: 6144 # -1 = disable
+  subset: -1 # -1 = disable
   trn_frac: 0.9
-  batch_size: 6144
-  num_workers: 8
+  batch_size: 5000
+  num_workers: 18
   root: /scratch/izar/${username}/netml/data
-  prefetch: True # If your compute does not allow it, you can use `prefetch=False`
+  prefetch: True 
   signal_transform: fft_filtering
 
 # Optimisation
 optim:
-  lr: 1e-3
+  lr: 5e-4
   weight_decay: 0.0
-  warmup_epochs: 10
-  plateau_patience: 5
-  plateau_factor: 0.5
-  min_lr: 1e-6 
+  warmup_epochs: 50
+
+  # Scheduler - reduce on plateau
+  plateau_patience: 10 # how many val/f1 to wait before reducing
+  plateau_factor: 0.5 # reduce by this factor
+  min_lr: 1e-6  # minimum learning rate
 
 # PL trainer 
 trainer:
@@ -42,7 +44,7 @@ trainer:
   devices: 1
   checkpoint_every_n_epochs: 250
   check_val_every_n_epoch: 25
-  grad_clip: 0.0
+  grad_clip: 1
   precision: 32
   find_lr: False
 

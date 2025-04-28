@@ -1,0 +1,31 @@
+# Core scientific stack
+numpy
+pandas
+scipy
+
+# PyTorch and Lightning
+torch
+pytorch-lightning
+
+# Hydra and OmegaConf for configuration
+hydra-core
+omegaconf
+
+# Logging
+wandb
+tensorboard
+
+# Metrics
+torchmetrics
+
+# Progress bars
+tqdm
+
+# Parquet file support
+pyarrow
+
+# Data validation (used in EEGDataset)
+pandera
+
+# Jupyter Notebook support
+jupyter

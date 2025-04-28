@@ -58,45 +58,14 @@ class SeizurePredictor(pl.LightningModule):
             weight_decay=self.hparams.optim.weight_decay,
         )
 
-        # Plateau scheduler (will be activated after warmup)
-        plateau_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer,
-            mode="max",
-            factor=self.hparams.optim.plateau_factor,
-            patience=self.hparams.optim.plateau_patience,
-            min_lr=self.hparams.optim.min_lr,
-        )
+        return optimizer
 
-        # Return both schedulers, but only use ReduceLROnPlateau after warmup
-
-        return [optimizer], [
-            {
-                "scheduler": plateau_scheduler,
-                "interval": "epoch",
-                "frequency": 1,
-                "monitor": "val/f1",
-                "strict": False,
-                "name": "plateau",
-            },
-        ]
     
-    def optimizer_step(
-        self, epoch, batch_idx, optimizer, optimizer_closure, on_tpu=False, using_native_amp=False, using_lbfgs=False
-    ):
-        optimizer.step(closure=optimizer_closure)
-
-        # Warmup for the first N epochs
-        warmup_epochs = self.hparams.optim.warmup_epochs
-        if self.current_epoch < warmup_epochs:
-            lr_scale = float(self.current_epoch + 1) / float(warmup_epochs)
-            for pg in optimizer.param_groups:
-                pg["lr"] = lr_scale * self.lr  # or self.learning_rate 
-
     def on_before_optimizer_step(self, optimizer):
         norm_order = 2.0
         norms = grad_norm(self, norm_type=norm_order)
         self.log(
-            "Total gradient (norm)",
+            "optim/grad_norm",
             norms[f"grad_{norm_order}_norm_total"],
             on_step=False,
             on_epoch=True,
