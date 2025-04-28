@@ -1,6 +1,4 @@
-
-
-### Environment Setup
+### ⚙️ Environment Setup
 
 First, move data to your scratch directory (make sure to replace username with your actual `izar` username):
 
@@ -19,3 +17,16 @@ pip install -r requirements.txt
 ```
 
 Third, authenticate yourself with W&B (if not done already), follow this [quick start quide](https://docs.wandb.ai/quickstart/).
+
+### 🏋🏻‍♀️ Training
+To train the model, first check [train config](configs/train.yaml) and adjust the parameters as needed. Then, run the training script:
+
+```bash
+python train.py 
+```
+
+When you want to overwrite some default config setting, you can do so as follows:
+
+```bash
+python train.py debug=True data.subset=500
+```
