@@ -1,37 +1,35 @@
-# Configuration for the baseline LSTM model provided by the TAs
-# ------------------------------------------------------------------------------------------
-username: 'cizinsky' # your izar username
+# Most basic config for training a model
 
+# Set the model to use
+defaults:
+  - model: baseline
+
+# General info
+username: 'cizinsky' # your izar username
 seed: 42
 debug: True # to avoid logging into wandb
 output_dir: /scratch/izar/${username}/netml/outputs
 
-
-# w&b parameters
+# w&b 
 logger:
   project: seizure-prediction
   tags: [dev, baseline] # something we can filter by
 
+# Data 
 data:
   batch_size: 512
-  num_workers: 16
+  num_workers: 10
   root: /scratch/izar/${username}/netml/data
   prefetch: True # If your compute does not allow it, you can use `prefetch=False`
   signal_transform: fft_filtering
 
-model:
-  temb_dim: 256 
-  weight_dim: 96 # assuming mixed tokenization
-  num_weight_tokens: 61 # assuming mixed tokenization
-  hidden_dim: 256 
-  num_layers: 8
-  num_heads: 4
-  lr: 2e-4
+# Optimisation
+optim:
+  lr: 1e-3
   weight_decay: 0.0
-  warmup_epochs: 10
-  warmup_factor: 0.0
 
 
+# PL trainer 
 trainer:
   max_epochs: 1000
   accelerator: gpu

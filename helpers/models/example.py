@@ -1,1 +1,0 @@
-# TODO: here define the model class using the standard pytorch format

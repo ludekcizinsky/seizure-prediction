@@ -1,37 +1,56 @@
+import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import pytorch_lightning as pl
+
 
 class SeizurePredictor(pl.LightningModule):
-    def __init__(self, model):
+    def __init__(self, cfg, model):
         super().__init__()
-        self.save_hyperparameters()
+        self.save_hyperparameters(cfg)
 
         self.model = model
-        self.loss_fn = ...
+        self.loss_fn = nn.BCEWithLogitsLoss()
 
     def forward(self, x):
         return self.model(x)
 
     def training_step(self, batch, batch_idx):
-        # TODO: adjust this to our dataset
-        x, y = batch
-        logits = self(x)
-        loss = self.loss_fn(logits, y)
 
-        acc = (logits.argmax(dim=1) == y).float().mean()
-        self.log("train_loss", loss, on_step=False, on_epoch=True)
-        self.log("train_acc", acc, on_step=False, on_epoch=True)
+        x_batch, y_batch = batch
+        x_batch = x_batch  # [batch_size, seq_len, input_dim]
+        y_batch = y_batch.unsqueeze(1)  # [batch_size, 1]
+
+        logits = self(x_batch)  # [batch_size, 1]
+        loss = self.loss_fn(logits, y_batch)
+
+        preds = torch.sigmoid(logits) > 0.5
+        acc = (preds == y_batch).float().mean()
+        self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
 
         return loss
 
     def validation_step(self, batch, batch_idx):
-        # TODO: adjust the metric computation - we can use torch metrics
-        x, y = batch
-        logits = self(x)
-        loss = self.loss_fn(logits, y)
+        x_batch, y_batch = batch
+        x_batch = x_batch  # [batch_size, seq_len, input_dim]
+        y_batch = y_batch.unsqueeze(1)  # [batch_size, 1]
 
-        acc = (logits.argmax(dim=1) == y).float().mean()
-        self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("val_acc", acc, on_step=False, on_epoch=True, prog_bar=True)
+        logits = self(x_batch)  # [batch_size, 1]
+        loss = self.loss_fn(logits, y_batch)
+
+        preds = torch.sigmoid(logits) > 0.5
+        acc = (preds == y_batch).float().mean()
+        self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.AdamW(
+            self.model.parameters(),
+            lr=self.hparams.optim.lr,
+            weight_decay=self.hparams.optim.weight_decay,
+        )
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer, T_max=self.hparams.trainer.max_epochs
+        )
+        return [optimizer], [scheduler]

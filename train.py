@@ -5,9 +5,10 @@ from pytorch_lightning.loggers import WandbLogger
 
 from helpers.callbacks import get_callbacks
 from helpers.dataset import get_dataloaders
+from helpers.pl_module import SeizurePredictor
 
 
-@hydra.main(config_path="configs", config_name="baseline.yaml", version_base="1.1")
+@hydra.main(config_path="configs", config_name="train.yaml", version_base="1.1")
 def train(cfg: DictConfig):
 
     print("-" * 50)
@@ -27,7 +28,8 @@ def train(cfg: DictConfig):
         logger = None
 
     trn_dataloader, val_dataloader = get_dataloaders(cfg)
-    pl_module = ...
+    model = hydra.utils.instantiate(cfg.model)
+    pl_module = SeizurePredictor(cfg, model)
     callbacks = get_callbacks(cfg)
 
     trainer = L.Trainer(

@@ -1,0 +1,5 @@
+_target_: helpers.models.baseline.SimpleLSTM
+input_dim: 19
+hidden_dim: 64
+num_layers: 1
+dropout: 0.2
