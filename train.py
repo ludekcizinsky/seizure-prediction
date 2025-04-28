@@ -4,6 +4,7 @@ import hydra
 import pytorch_lightning as L
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.loggers import WandbLogger, TensorBoardLogger
+from pytorch_lightning.tuner import Tuner
 
 from helpers.callbacks import get_callbacks
 from helpers.dataset import get_dataloaders
@@ -53,6 +54,10 @@ def train(cfg: DictConfig):
         log_every_n_steps=len(trn_dataloader),
         check_val_every_n_epoch=cfg.trainer.check_val_every_n_epoch,
     )
+
+    if cfg.trainer.find_lr:
+        tuner = Tuner(trainer)
+        tuner.lr_find(pl_module, trn_dataloader)
 
     trainer.fit(pl_module, trn_dataloader, val_dataloader)
 

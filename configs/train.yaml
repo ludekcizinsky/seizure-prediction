@@ -8,7 +8,7 @@ defaults:
 # General info
 username: 'cizinsky' # your izar username
 seed: 42
-debug: True # to avoid logging into wandb
+debug: False # to avoid logging into wandb
 output_dir: /scratch/izar/${username}/netml/outputs
 
 # w&b 
@@ -18,9 +18,9 @@ logger:
 
 # Data 
 data:
-  subset: -1 # -1 = disable
+  subset: 4096 # -1 = disable
   trn_frac: 0.9
-  batch_size: 512
+  batch_size: 4096
   num_workers: 8
   root: /scratch/izar/${username}/netml/data
   prefetch: True # If your compute does not allow it, you can use `prefetch=False`
@@ -41,6 +41,7 @@ trainer:
   check_val_every_n_epoch: 250
   grad_clip: 0.0
   precision: 32
+  find_lr: True
 
 
 # Just to let Hydra know where to save the config file
