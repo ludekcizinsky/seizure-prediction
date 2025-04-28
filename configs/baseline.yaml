@@ -1,0 +1,47 @@
+# Configuration for the baseline LSTM model provided by the TAs
+# ------------------------------------------------------------------------------------------
+username: 'cizinsky' # your izar username
+
+seed: 42
+debug: True # to avoid logging into wandb
+
+
+# w&b parameters
+logger:
+  project: seizure-prediction
+  tags: [dev, baseline] # something we can filter by
+
+data:
+  trn_frac: 0.9
+  batch_size: 3024
+  num_workers: 16
+  nca_weights_path: /scratch/izar/${username}/hypernca/pretrained_nca/Flickr+DTD_NCA
+
+model:
+  temb_dim: 256 
+  weight_dim: 96 # assuming mixed tokenization
+  num_weight_tokens: 61 # assuming mixed tokenization
+  hidden_dim: 256 
+  num_layers: 8
+  num_heads: 4
+  lr: 2e-4
+  weight_decay: 0.0
+  warmup_epochs: 10
+  warmup_factor: 0.0
+
+
+trainer:
+  max_epochs: 1000
+  accelerator: gpu
+  devices: 1
+  checkpoint_every_n_epochs: 250
+  grad_clip: 0.0
+  precision: 32
+
+
+# Just to let Hydra know where to save the config file
+hydra:
+  run:
+    dir: /scratch/izar/${username}/outputs/hydra/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  job:
+    chdir: False
