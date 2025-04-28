@@ -1,3 +1,6 @@
+# Dataset
+seiz-eeg
+
 # Core scientific stack
 numpy
 pandas
