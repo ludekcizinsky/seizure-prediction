@@ -8,9 +8,7 @@ class SeizurePredictor(pl.LightningModule):
     def __init__(self, cfg, model):
         super().__init__()
         self.save_hyperparameters(cfg)
-
         self.model = model
-        self.loss_fn = nn.BCEWithLogitsLoss()
 
     def forward(self, x):
         return self.model(x)
@@ -22,7 +20,7 @@ class SeizurePredictor(pl.LightningModule):
         y_batch = y_batch.unsqueeze(1)  # [batch_size, 1]
 
         logits = self(x_batch)  # [batch_size, 1]
-        loss = self.loss_fn(logits, y_batch)
+        loss = F.binary_cross_entropy_with_logits(logits, y_batch)
 
         preds = torch.sigmoid(logits) > 0.5
         acc = (preds == y_batch).float().mean()
@@ -37,7 +35,7 @@ class SeizurePredictor(pl.LightningModule):
         y_batch = y_batch.unsqueeze(1)  # [batch_size, 1]
 
         logits = self(x_batch)  # [batch_size, 1]
-        loss = self.loss_fn(logits, y_batch)
+        loss = F.binary_cross_entropy_with_logits(logits, y_batch)
 
         preds = torch.sigmoid(logits) > 0.5
         acc = (preds == y_batch).float().mean()

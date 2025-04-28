@@ -3,12 +3,12 @@ from scipy import signal
 
 
 def get_filter(cfg):
-    if cfg.signal_transform == "time_filtering":
+    if cfg.data.signal_transform == "time_filtering":
         return time_filtering
-    elif cfg.signal_transform == "fft_filtering":
+    elif cfg.data.signal_transform == "fft_filtering":
         return fft_filtering
     else:
-        raise ValueError(f"Invalid signal transform: {cfg.signal_transform}")
+        raise ValueError(f"Invalid signal transform: {cfg.data.signal_transform}")
 
 def time_filtering(x: np.ndarray) -> np.ndarray:
     """Filter signal in the time domain"""

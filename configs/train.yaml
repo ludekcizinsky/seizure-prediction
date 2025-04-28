@@ -17,6 +17,7 @@ logger:
 
 # Data 
 data:
+  trn_frac: 0.9
   batch_size: 512
   num_workers: 10
   root: /scratch/izar/${username}/netml/data
