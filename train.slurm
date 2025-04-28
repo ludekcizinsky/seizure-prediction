@@ -1,19 +1,19 @@
 #!/bin/bash
 #SBATCH --job-name=netml
-#SBATCH --output=/scratch/izar/${1}/netml/outputs/slurm/train_%j.out
-#SBATCH --error=/scratch/izar/${1}/netml/outputs/slurm/train_%j.err
+#SBATCH --output=/scratch/izar/$USER/netml/outputs/slurm/train_%j.out
+#SBATCH --error=/scratch/izar/$USER/netml/outputs/slurm/train_%j.err
 #SBATCH --time=01:00:00
-#SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=10
-#SBATCH --mem=20G
+#SBATCH --mem=16G
 #SBATCH --ntasks=1
-#SBATCH --qos=ee-452
-#SBATCH --account=ee-452
+#SBATCH --qos=cs-503
+#SBATCH --account=cs-503
 
-USERNAME="$1"
+# Ensure output directory exists
+mkdir -p /scratch/izar/$USER/netml/outputs/slurm
 
-cd /home/${USERNAME}/netml-project
-source /home/${USERNAME}/venvs/netml/bin/activate
+cd /home/$USER/netml-project
+source /home/$USER/venvs/netml/bin/activate
 
 python train.py
