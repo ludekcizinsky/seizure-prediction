@@ -3,6 +3,7 @@
 # Set the model to use
 defaults:
   - model: baseline
+  - _self_
 
 # General info
 username: 'cizinsky' # your izar username
@@ -17,9 +18,10 @@ logger:
 
 # Data 
 data:
+  subset: 1024
   trn_frac: 0.9
   batch_size: 512
-  num_workers: 10
+  num_workers: 8
   root: /scratch/izar/${username}/netml/data
   prefetch: True # If your compute does not allow it, you can use `prefetch=False`
   signal_transform: fft_filtering
@@ -36,6 +38,7 @@ trainer:
   accelerator: gpu
   devices: 1
   checkpoint_every_n_epochs: 250
+  check_val_every_n_epoch: 250
   grad_clip: 0.0
   precision: 32
 

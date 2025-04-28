@@ -11,6 +11,9 @@ def get_datasets(cfg):
     # Load
     path = f"{cfg.data.root}/train"
     clips = pd.read_parquet(f"{path}/segments.parquet")
+    if cfg.data.subset > 0:
+        clips = clips.iloc[: cfg.data.subset]
+
     dataset = EEGDataset(
         clips,
         signals_root=path,
@@ -32,13 +35,13 @@ def get_dataloaders(cfg):
     trn_dataloader = DataLoader(
         dataset_tr,
         batch_size=cfg.data.batch_size,
-        num_workers=cfg.data.num_workers,
+        num_workers=cfg.data.num_workers // 2 + cfg.data.num_workers % 2,
         shuffle=True,
     )
     val_dataloader = DataLoader(
         dataset_val,
         batch_size=cfg.data.batch_size,
-        num_workers=cfg.data.num_workers,
+        num_workers=cfg.data.num_workers // 2,
         shuffle=False,
     )
 

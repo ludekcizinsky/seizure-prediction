@@ -11,36 +11,38 @@ class SeizurePredictor(pl.LightningModule):
         self.model = model
 
     def forward(self, x):
+        dtype = next(self.model.parameters()).dtype
+        x = x.to(dtype)
         return self.model(x)
 
     def training_step(self, batch, batch_idx):
 
         x_batch, y_batch = batch
         x_batch = x_batch  # [batch_size, seq_len, input_dim]
-        y_batch = y_batch.unsqueeze(1)  # [batch_size, 1]
+        y_batch = y_batch.unsqueeze(1).float()  # [batch_size, 1]
 
         logits = self(x_batch)  # [batch_size, 1]
         loss = F.binary_cross_entropy_with_logits(logits, y_batch)
 
         preds = torch.sigmoid(logits) > 0.5
         acc = (preds == y_batch).float().mean()
-        self.log("train/loss", loss, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("train/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("train/loss", loss, on_step=False, on_epoch=True)
+        self.log("train/acc", acc, on_step=False, on_epoch=True)
 
         return loss
 
     def validation_step(self, batch, batch_idx):
         x_batch, y_batch = batch
         x_batch = x_batch  # [batch_size, seq_len, input_dim]
-        y_batch = y_batch.unsqueeze(1)  # [batch_size, 1]
+        y_batch = y_batch.unsqueeze(1).float() # [batch_size, 1]
 
         logits = self(x_batch)  # [batch_size, 1]
         loss = F.binary_cross_entropy_with_logits(logits, y_batch)
 
         preds = torch.sigmoid(logits) > 0.5
         acc = (preds == y_batch).float().mean()
-        self.log("val/loss", loss, on_step=False, on_epoch=True, prog_bar=True)
-        self.log("val/acc", acc, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val/loss", loss, on_step=False, on_epoch=True)
+        self.log("val/acc", acc, on_step=False, on_epoch=True)
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(

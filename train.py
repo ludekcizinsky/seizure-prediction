@@ -1,7 +1,9 @@
+from datetime import datetime
+
 import hydra
 import pytorch_lightning as L
 from omegaconf import DictConfig, OmegaConf
-from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.loggers import WandbLogger, TensorBoardLogger
 
 from helpers.callbacks import get_callbacks
 from helpers.dataset import get_dataloaders
@@ -25,7 +27,12 @@ def train(cfg: DictConfig):
             tags=cfg.logger.tags,
         )
     else:
-        logger = None
+        run_version = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        logger = TensorBoardLogger(
+            save_dir=cfg.output_dir,
+            name="debug",
+            version=run_version,
+        )
 
     trn_dataloader, val_dataloader = get_dataloaders(cfg)
     model = hydra.utils.instantiate(cfg.model)
@@ -33,6 +40,7 @@ def train(cfg: DictConfig):
     callbacks = get_callbacks(cfg)
 
     trainer = L.Trainer(
+        default_root_dir=cfg.output_dir,
         max_epochs=cfg.trainer.max_epochs,
         accelerator=cfg.trainer.accelerator,
         devices=cfg.trainer.devices,
@@ -41,6 +49,9 @@ def train(cfg: DictConfig):
         gradient_clip_val=cfg.trainer.grad_clip,
         deterministic=True,
         precision=cfg.trainer.precision,
+        enable_progress_bar=False,
+        log_every_n_steps=len(trn_dataloader),
+        check_val_every_n_epoch=cfg.trainer.check_val_every_n_epoch,
     )
 
     trainer.fit(pl_module, trn_dataloader, val_dataloader)
