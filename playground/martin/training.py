@@ -74,17 +74,24 @@ def eval_epoch(model, device, loader_val, criterion, metrics, verbose=True, edge
 
     if verbose:
         print('Val Loss: {:.4f}, '.format(eval_loss),'Val Accuracy: {:.4f}, '.format(eval_acc),'Val F1-Score: {:.4f}, '.format(eval_f1))
-        print("\n")
 
-def train(model, num_epochs, device, loader_tr, loader_val, optimizer, criterion, verbose=True, edge_index=None):
+def train(model, num_epochs, device, loader_tr, loader_val, optimizer, criterion, model_folder, verbose=True, edge_index=None):
     metrics = dict()
     metrics["train"] = defaultdict(list)
     metrics["eval"] = defaultdict(list)
 
+    best_f1 = 0.0
+
     # iterate over epochs
     for epoch in range(num_epochs):
-        train_epoch(model, device, loader_tr, optimizer, criterion, epoch, metrics, verbose, edge_index)
 
+        train_epoch(model, device, loader_tr, optimizer, criterion, epoch, metrics, verbose, edge_index)
         eval_epoch(model, device, loader_val, criterion, metrics, verbose, edge_index)
+
+        current_f1 = metrics["eval"]["f1"][-1]
+        if current_f1 > best_f1:
+            best_f1 = current_f1
+            torch.save(model.state_dict(), f"{model_folder}/best_model.pt")
+            print(f"✅ Best model saved with F1: {best_f1:.4f} as {model_folder}/best_model.pt")
         
     return metrics
