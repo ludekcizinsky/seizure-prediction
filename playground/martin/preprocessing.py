@@ -8,7 +8,7 @@ def normalize_z_score(x: np.ndarray) -> np.ndarray:
     normalized = (x - np.mean(x, axis=0, keepdims=True)) / (np.std(x, axis=0, keepdims=True) + 1e-8)
     return normalized
 
-def time_filtering(x: np.ndarray, fmin: float = 0.5, fmax: float = 30) -> np.ndarray:
+def time_filtering(x: np.ndarray, fmin: float = 0.5, fmax: float = 40) -> np.ndarray:
     """Filter signal in the time domain"""
     bp_filter = signal.butter(4, (fmin, fmax), btype="bandpass", output="sos", fs=250)
     return signal.sosfiltfilt(bp_filter, x, axis=0).copy()

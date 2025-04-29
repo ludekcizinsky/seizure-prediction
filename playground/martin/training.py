@@ -15,7 +15,10 @@ def train_epoch(model, device, loader_tr, optimizer, criterion, epoch, metrics, 
         y = y.to(torch.float32).to(device)
         
         optimizer.zero_grad()
-        outputs = model(x, edge_index)
+        if edge_index is not None:
+            outputs = model(x, edge_index)
+        else:
+            outputs = model(x)
 
         with torch.no_grad():
             preds = torch.round(torch.sigmoid(outputs))
@@ -49,7 +52,10 @@ def eval_epoch(model, device, loader_val, criterion, metrics, verbose=True, edge
             x = x.to(torch.float32).to(device)
             y = y.to(torch.float32).to(device)
 
-            outputs = model(x, edge_index)
+            if edge_index is not None:
+                outputs = model(x, edge_index)
+            else:
+                outputs = model(x)
 
             loss = criterion(outputs.view(-1), y)
             preds = torch.round(torch.sigmoid(outputs))
