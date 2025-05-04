@@ -5,9 +5,11 @@ seiz-eeg
 numpy
 pandas
 scipy
+signatory
 
 # PyTorch and Lightning
 torch
+torch_geometric
 pytorch-lightning
 
 # Hydra and OmegaConf for configuration

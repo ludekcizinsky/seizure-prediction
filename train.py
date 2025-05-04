@@ -38,7 +38,7 @@ def train(cfg: DictConfig):
         )
 
     trn_dataloader, val_dataloader = get_dataloaders(cfg)
-    model = hydra.utils.instantiate(cfg.model)
+    model = hydra.utils.instantiate(cfg.model.module)
     pl_module = SeizurePredictor(cfg, model)
     callbacks = get_callbacks(cfg)
 

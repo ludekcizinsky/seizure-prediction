@@ -1,5 +1,7 @@
-_target_: helpers.models.baseline.SimpleLSTM
-input_dim: 19
-hidden_dim: 64
-num_layers: 3
-dropout: 0.3
+module:
+  _target_: helpers.models.baseline.SimpleLSTM
+  input_dim: 19
+  hidden_dim: 64
+  num_layers: 3
+  dropout: 0.3
+signal_transform: fft_filtering
