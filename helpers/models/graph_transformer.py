@@ -33,9 +33,6 @@ class graph_MHA_layer(nn.Module): # MHA = Multi Head Attention
 
     # Step 1 of message-passing with DGL:
     def message_func(self, edges):
-        ###############################################
-        # YOUR CODE STARTS
-        ###############################################
         # Step 1.1: Compute q_i^T * k_j, size=(E,K,1), edges.src/dst[].size=(E,K,d')
         qikj = (edges.src['K'] * edges.dst['Q']).sum(dim=2).unsqueeze(2)
 
@@ -44,16 +41,11 @@ class graph_MHA_layer(nn.Module): # MHA = Multi Head Attention
 
         # Step 1.3: Obtain V
         vj = edges.src['V'] # size=(E,K,d')
-        ###############################################
-        # YOUR CODE ENDS
-        ###############################################
+
         return {'expij' : expij, 'vj' : vj}
 
     # Step 2 of message-passing with DGL:
     def reduce_func(self, nodes):
-        ###############################################
-        # YOUR CODE STARTS
-        ###############################################
         # Step 2.1: Collects all messages= eij
         # size=(N,|Nj|,K,1), |Nj|=num_neighbors
         expij = nodes.mailbox['expij']
@@ -71,9 +63,6 @@ class graph_MHA_layer(nn.Module): # MHA = Multi Head Attention
 
         # h_i = sum_j score_ij . v_j , where score_ij = exp_ij / sum_j' exp_ij', size=(N,K,d')
         h = numerator / denominator
-        ###############################################
-        # YOUR CODE ENDS
-        ###############################################
 
         return {'h' : h}
 
@@ -85,18 +74,12 @@ class graph_MHA_layer(nn.Module): # MHA = Multi Head Attention
         K = self.WK(h) # size=(N, d)
         V = self.WV(h) # size=(N, d)
 
-        ###############################################
-        # YOUR CODE STARTS
-        ###############################################
         g.ndata['Q'] = Q.view(-1, self.num_heads, self.head_hidden_dim) # size=(N, K, d'=d/K)
         g.ndata['K'] = K.view(-1, self.num_heads, self.head_hidden_dim) # size=(N, K, d'=d/K)
         g.ndata['V'] = V.view(-1, self.num_heads, self.head_hidden_dim) # size=(N, K, d'=d/K)
 
         # compute with DGL the graph MHA
         g.update_all(self.message_func, self.reduce_func)
-        ###############################################
-        # YOUR CODE ENDS
-        ###############################################
 
         gMHA = g.ndata['h'] # size=(N, K, d'=d/K)
         return gMHA
@@ -150,16 +133,11 @@ class GraphTransformer_net(nn.Module):
         num_heads = net_parameters['num_heads']
         L = net_parameters['L']
 
-        ###############################################
-        # YOUR CODE STARTS
-        ###############################################
         self.embedding_h = nn.Linear(input_dim, hidden_dim)
         # self.embedding_e = nn.Linear(1, hidden_dim)
         self.GraphTransformer_layers = nn.ModuleList([ GraphTransformer_layer(hidden_dim, num_heads) for _ in range(L) ])
         self.MLP_layer = MLP_layer(hidden_dim, output_dim)
-        ###############################################
-        # YOUR CODE ENDS
-        ###############################################
+
 
     def forward(self, g, h):
         # input embedding
