@@ -15,7 +15,7 @@ class SeizurePredictor(pl.LightningModule):
         self.lr = cfg.optim.lr
         distance_file = cfg.model.get("distance_file",None)
         if distance_file is not None:
-            distance_matrix = torch.tensor(pd.read_csv(distance_file).pivot(index='from', columns='to', values='distance').to_numpy(),device=model.device,dtype=torch.float32)
+            distance_matrix = torch.tensor(pd.read_csv(distance_file).pivot(index='from', columns='to', values='distance').to_numpy(),device='cuda:0',dtype=torch.float32)
             adjacency = (distance_matrix <= cfg.model.get("distance_thresh",None)).int()
             self.edge_index = torch.argwhere(adjacency==1).transpose(-1,-2).to(torch.long)
         else:
@@ -24,7 +24,7 @@ class SeizurePredictor(pl.LightningModule):
     def forward(self, x):
         dtype = next(self.model.parameters()).dtype
         x = x.to(dtype)
-        if self.edge_index:
+        if self.edge_index != []:
             return self.model(x, self.edge_index)
         else:
             return self.model(x)
@@ -36,7 +36,7 @@ class SeizurePredictor(pl.LightningModule):
         y_batch = y_batch.float()  # [batch_size, ]
 
         logits = self(x_batch).squeeze(1)  # [batch_size, ]
-        loss = F.binary_cross_entropy_with_logits(logits, y_batch)
+        loss = nn.BCEWithLogitsLoss()(logits, y_batch)
 
         preds = (torch.sigmoid(logits) > 0.5).int()
         acc = (preds == y_batch.int()).float().mean()
@@ -53,7 +53,7 @@ class SeizurePredictor(pl.LightningModule):
         y_batch = y_batch.float()  # [batch_size, ]
 
         logits = self(x_batch).squeeze(1)  # [batch_size, ]
-        loss = F.binary_cross_entropy_with_logits(logits, y_batch)
+        loss = nn.BCEWithLogitsLoss()(logits, y_batch)
 
         preds = (torch.sigmoid(logits) > 0.5).int()
         acc = (preds == y_batch.int()).float().mean()

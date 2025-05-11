@@ -2,11 +2,11 @@
 
 # Set the model to use, specify in model directory
 defaults:
-  - model: baseline
+  - model: gcn_lstm_att
   - _self_
 
 # General info
-username: 'cizinsky' # your izar username
+username: 'mlebras' # your izar username
 seed: 42
 debug: False # to avoid logging into wandb, instead we log locally using Tensorboard
 output_dir: /scratch/izar/${username}/netml/outputs # will be created if it doesn't exist
@@ -20,8 +20,8 @@ logger:
 data:
   subset: -1 # -1 = disable, else int, we have around 11k samples
   trn_frac: 0.9
-  batch_size: 5000
-  num_workers: 18
+  batch_size: 512
+  num_workers: 8
   root: /scratch/izar/${username}/netml/data # path to the data
   prefetch: True # should be always true, unless you are on your laptop
 
