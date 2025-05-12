@@ -2,7 +2,7 @@
 
 # Set the model to use, specify in model directory
 defaults:
-  - model: gcn_lstm_att
+  - model: baseline
   - _self_
 
 # General info

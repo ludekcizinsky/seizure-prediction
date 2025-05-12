@@ -5,7 +5,6 @@ import hydra
 import pytorch_lightning as L
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.loggers import WandbLogger, TensorBoardLogger
-from pytorch_lightning.tuner import Tuner
 
 from helpers.callbacks import get_callbacks
 from helpers.dataset import get_dataloaders
