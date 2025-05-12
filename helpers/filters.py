@@ -1,6 +1,9 @@
 import numpy as np
 from scipy import signal
+import torchvision.transforms as transforms
 
+def get_normalization(mean, std):
+    return transforms.Normalize(mean=mean, std=std)
 
 def get_filter(cfg):
     if cfg.model.signal_transform == "time_filtering":
