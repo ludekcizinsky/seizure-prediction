@@ -35,13 +35,13 @@ def get_dataloaders(cfg):
     trn_dataloader = DataLoader(
         dataset_tr,
         batch_size=cfg.data.batch_size,
-        num_workers=cfg.data.num_workers // 2 + cfg.data.num_workers % 2,
+        num_workers=cfg.data.num_workers,
         shuffle=True,
     )
     val_dataloader = DataLoader(
         dataset_val,
         batch_size=cfg.data.batch_size,
-        num_workers=cfg.data.num_workers // 2,
+        num_workers=cfg.data.num_workers,
         shuffle=False,
     )
 
