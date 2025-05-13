@@ -1,14 +1,22 @@
 import numpy as np
 from scipy import signal
+from typing import Callable, Iterable
+from functools import reduce
 
+def normalize_signal(x: np.ndarray,
+                     mean: np.ndarray,
+                     std: np.ndarray) -> np.ndarray:
+    return (x - mean) / std
 
 def get_filter(cfg):
+
     if cfg.model.signal_transform == "time_filtering":
         return time_filtering
     elif cfg.model.signal_transform == "fft_filtering":
         return fft_filtering
     else:
         raise ValueError(f"Invalid signal transform: {cfg.model.signal_transform}")
+    
 
 def time_filtering(x: np.ndarray) -> np.ndarray:
     """Filter signal in the time domain"""
@@ -24,3 +32,10 @@ def fft_filtering(x: np.ndarray) -> np.ndarray:
     win_len = x.shape[0]
     # Only frequencies b/w 0.5 and 30Hz
     return x[int(0.5 * win_len // 250) : 30 * win_len // 250]
+
+def make_pipeline(steps: Iterable[Callable]) -> Callable:
+    """
+    Return a function that is the composition:
+        funcs[-1](...funcs[1](funcs[0](x))...)
+    """
+    return lambda x: reduce(lambda v, f: f(v), steps, x)

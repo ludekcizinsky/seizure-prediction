@@ -10,3 +10,4 @@ module:
   attention_dim: 64
   dropout: 0.5
 signal_transform: time_filtering
+normalize: False

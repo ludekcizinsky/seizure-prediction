@@ -14,3 +14,4 @@ module:
 signal_transform: time_filtering
 distance_file: "data/distances_3d.csv"
 distance_thresh: 1
+normalize: False
