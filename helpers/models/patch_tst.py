@@ -16,6 +16,9 @@ class PatchTSTWrapper(nn.Module):
         channel_attention=False, # let channels attend to each other
         norm_type="layernorm", # batchnorm or layernorm
         use_cls_token=True,
+        attention_dropout=0.1,
+        positional_dropout=0.1,
+        patch_dropout=0.1,
     ):
         super().__init__()
         cfg   = PatchTSTConfig(
@@ -33,6 +36,9 @@ class PatchTSTWrapper(nn.Module):
             ffn_dim=4*d_model,
             share_projection=share_projection,
             norm_type=norm_type,
+            attention_dropout=attention_dropout,
+            positional_dropout=positional_dropout,
+            patch_dropout=patch_dropout,
         )
         model = PatchTSTForClassification(config=cfg)
 
