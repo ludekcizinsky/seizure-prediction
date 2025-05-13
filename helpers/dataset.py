@@ -1,11 +1,14 @@
-import pandas as pd
 from seiz_eeg.dataset import EEGDataset
+
+from functools import partial
+
 from torch.utils.data import DataLoader
 from torch.utils.data import random_split
-import torchvision.transforms as transforms
 import torch
 
-from helpers.filters import get_filter, get_normalization
+import pandas as pd
+
+from helpers.filters import get_filter, normalize_signal, make_pipeline
 
 
 def get_datasets(cfg):
@@ -17,18 +20,21 @@ def get_datasets(cfg):
         clips = clips.iloc[: cfg.data.subset]
 
     list_of_transforms = []
+    readable_transforms = []
     if cfg.model.normalize:
-        mean = torch.tensor([ 1.9907e-03, -1.1654e-03,  2.0860e-03, -7.4935e-04,  4.5839e-03, 2.8718e-04, -4.0319e-04, -7.7969e-05, -4.2803e-03, -1.6963e-03, 1.2549e-03, -2.8467e-04,  2.5901e-04,  6.5623e-03, -3.3983e-03, 1.2480e-03,  1.3762e-03, -1.7694e-03, -5.8233e-03], dtype=torch.float64)
-        std = torch.tensor([158.2415, 159.4878, 152.8925, 150.5167, 150.6428, 148.8908, 153.9944, 153.8446, 152.9122, 153.9926, 152.8411, 151.9071, 151.2794, 153.7461, 151.1686, 150.3015, 151.7241, 152.1091, 156.2211], dtype=torch.float64)
-        list_of_transforms.append(get_normalization(mean, std))
+        mean = torch.load(f"{cfg.repo_root}/data/trn_mean.pt").type(torch.float64).numpy()
+        std = torch.load(f"{cfg.repo_root}/data/trn_std.pt").type(torch.float64).numpy()
+        norm = partial(normalize_signal, mean=mean, std=std)
+        list_of_transforms.append(norm)
+        readable_transforms.append("normalize")
     if cfg.model.signal_transform is not None:
         list_of_transforms.append(get_filter(cfg))
-
+        readable_transforms.append(cfg.model.signal_transform)
     if len(list_of_transforms) > 0:
-        signal_transform = transforms.Compose(list_of_transforms)
+        signal_transform = make_pipeline(list_of_transforms)
     else:
         signal_transform = None 
-    print(f"FYI: using the following signal transform: {signal_transform}")
+    print(f"FYI: using the following signal transform: {' -> '.join(readable_transforms)}")
 
     dataset = EEGDataset(
         clips,

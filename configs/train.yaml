@@ -10,6 +10,7 @@ username: 'mlebras' # your izar username
 seed: 42
 debug: False # to avoid logging into wandb, instead we log locally using Tensorboard
 output_dir: /scratch/izar/${username}/netml/outputs # will be created if it doesn't exist
+repo_root: /home/${username}/netml-project/ # path to the repo on your machine
 
 # w&b 
 logger:
