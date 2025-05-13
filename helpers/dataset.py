@@ -16,12 +16,19 @@ def get_datasets(cfg):
     if cfg.data.subset > 0:
         clips = clips.iloc[: cfg.data.subset]
 
+    list_of_transforms = []
     if cfg.model.normalize:
         mean = torch.tensor([ 1.9907e-03, -1.1654e-03,  2.0860e-03, -7.4935e-04,  4.5839e-03, 2.8718e-04, -4.0319e-04, -7.7969e-05, -4.2803e-03, -1.6963e-03, 1.2549e-03, -2.8467e-04,  2.5901e-04,  6.5623e-03, -3.3983e-03, 1.2480e-03,  1.3762e-03, -1.7694e-03, -5.8233e-03], dtype=torch.float64)
         std = torch.tensor([158.2415, 159.4878, 152.8925, 150.5167, 150.6428, 148.8908, 153.9944, 153.8446, 152.9122, 153.9926, 152.8411, 151.9071, 151.2794, 153.7461, 151.1686, 150.3015, 151.7241, 152.1091, 156.2211], dtype=torch.float64)
-        signal_transform = transforms.Compose([get_filter(cfg),get_normalization(mean, std)])
+        list_of_transforms.append(get_normalization(mean, std))
+    if cfg.model.signal_transform is not None:
+        list_of_transforms.append(get_filter(cfg))
+
+    if len(list_of_transforms) > 0:
+        signal_transform = transforms.Compose(list_of_transforms)
     else:
-        signal_transform = get_filter(cfg)
+        signal_transform = None 
+    print(f"FYI: using the following signal transform: {signal_transform}")
 
     dataset = EEGDataset(
         clips,
@@ -33,7 +40,8 @@ def get_datasets(cfg):
     # Split
     train_size = int(cfg.data.trn_frac * len(dataset))
     val_size = len(dataset) - train_size
-    train_dataset, val_dataset = random_split(dataset, [train_size, val_size]) 
+    generator = torch.Generator().manual_seed(cfg.seed)
+    train_dataset, val_dataset = random_split(dataset, [train_size, val_size], generator=generator) 
 
     return train_dataset, val_dataset
 
