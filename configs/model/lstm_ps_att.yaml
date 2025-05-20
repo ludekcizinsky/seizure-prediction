@@ -2,7 +2,7 @@ module:
   _target_: helpers.models.lstm_ps_att.LSTM_PS_ATT
   output_size: 1
   window_size: 125 
-  step_size: 125
+  # step_size: 125
   lstm_input_size: 128
   lstm_hidden_size: 128 
   lstm_layers: 3
