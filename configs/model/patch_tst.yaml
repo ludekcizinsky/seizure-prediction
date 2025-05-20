@@ -17,3 +17,4 @@ module:
   positional_dropout: 0.1
   patch_dropout: 0.1
 signal_transform: fft_filtering
+normalize: False
