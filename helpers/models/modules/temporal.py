@@ -49,21 +49,46 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:, :x.size(1)]
         return x
     
-class TransformerEncoder(nn.Module):
-
-    def __init__(self, transformer_dim, num_heads, num_layers, batch_first, dropout):
+class ModularTransformerEncoder(nn.Module):
+    def __init__(
+        self,
+        in_channels: int,
+        transformer_dim: int,
+        num_heads: int,
+        num_layers: int,
+        dropout: float,
+        num_classes: int = None,
+        **kwargs
+    ):
         super().__init__()
-        self.transformer_dim = transformer_dim
-        self.num_heads = num_heads
-        self.batch_first = batch_first
-        self.dropout = dropout
-        self.num_layers = num_layers
-        encoder_layers = nn.TransformerEncoderLayer(d_model=transformer_dim, nhead=num_heads, dropout=dropout, batch_first=True)
-        self.transformer_encoder = nn.TransformerEncoder(encoder_layers, num_layers=num_layers)
+        # project 19 channels → transformer_dim
+        self.input_proj = nn.Linear(in_channels, transformer_dim)
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=transformer_dim,
+            nhead=num_heads,
+            dropout=dropout,
+            batch_first=True
+        )
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+
+        # optional classification head
+        if num_classes is not None:
+            self.classifier = nn.Linear(transformer_dim, num_classes)
+        else:
+            self.classifier = None
 
     def forward(self, x):
+        # x: (B, T, C) where C == in_channels
+        x = self.input_proj(x)          # → (B, T, transformer_dim)
+        x = self.transformer(x)         # → (B, T, transformer_dim)
 
-        return self.transformer_encoder(x)
+        if self.classifier is not None:
+            # pool over time → (B, transformer_dim)
+            x = x.mean(dim=1)
+            return self.classifier(x)   # → (B, num_classes)
+        else:
+            # return full sequence of features
+            return x                   # → (B, T, transformer_dim)
 
 
 class Modular1DCNN(nn.Module):
