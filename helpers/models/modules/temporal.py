@@ -2,23 +2,37 @@ import torch
 import math
 import torch.nn as nn
 import torch.nn.functional as F
-from omegaconf import DictConfig
+
 
 class LSTM(nn.Module):
 
-    def __init__(self, input_size, hidden_size, num_layers, batch_first, bidirectional, dropout):
+    def __init__(self, input_dim, hidden_dim, num_layers, bidirectional, dropout, num_classes, **kwargs):
         super().__init__()
-        self.input_size = input_size
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        self.batch_first = batch_first
-        self.bidirectional = bidirectional
-        self.dropout = dropout
-        self.lstm = nn.LSTM(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=batch_first, bidirectional=bidirectional, dropout=dropout)
+        self.lstm = nn.LSTM(
+            input_dim, 
+            hidden_dim, 
+            num_layers, 
+            batch_first=True, 
+            bidirectional=bidirectional, 
+            dropout=dropout
+        )
+        if num_classes is not None:
+            self.classifier = nn.Linear(hidden_dim, num_classes)
+        else:
+            self.classifier = None
+
 
     def forward(self, x):
-
-        return self.lstm(x)
+        """
+        x shape: [batch_size, seq_len, input_dim]
+        """
+        out, (h_n, c_n) = self.lstm(x)  # out shape: [batch_size, seq_len, hidden_dim]
+        last_timestep = out[:, -1, :]  # [batch_size, hidden_dim]
+        if self.classifier is not None:
+            logits = self.classifier(last_timestep)  # [batch_size, 1]
+            return logits
+        else:
+            return last_timestep
     
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=500):
