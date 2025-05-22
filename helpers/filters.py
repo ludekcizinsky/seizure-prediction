@@ -10,12 +10,12 @@ def normalize_signal(x: np.ndarray,
 
 def get_filter(cfg):
 
-    if cfg.model.signal_transform == "time_filtering":
+    if cfg.data.signal_transform == "time_filtering":
         return time_filtering
-    elif cfg.model.signal_transform == "fft_filtering":
+    elif cfg.data.signal_transform == "fft_filtering":
         return fft_filtering
     else:
-        raise ValueError(f"Invalid signal transform: {cfg.model.signal_transform}")
+        raise ValueError(f"Invalid signal transform: {cfg.data.signal_transform}")
     
 
 def time_filtering(x: np.ndarray) -> np.ndarray:

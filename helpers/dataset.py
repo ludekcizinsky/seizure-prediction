@@ -21,15 +21,15 @@ def get_datasets(cfg):
 
     list_of_transforms = []
     readable_transforms = []
-    if cfg.model.normalize:
+    if cfg.data.normalize:
         mean = torch.load(f"{cfg.repo_root}/data/trn_mean.pt").type(torch.float64).numpy()
         std = torch.load(f"{cfg.repo_root}/data/trn_std.pt").type(torch.float64).numpy()
         norm = partial(normalize_signal, mean=mean, std=std)
         list_of_transforms.append(norm)
         readable_transforms.append("normalize")
-    if cfg.model.signal_transform is not None:
+    if cfg.data.signal_transform is not None:
         list_of_transforms.append(get_filter(cfg))
-        readable_transforms.append(cfg.model.signal_transform)
+        readable_transforms.append(cfg.data.signal_transform)
     if len(list_of_transforms) > 0:
         signal_transform = make_pipeline(list_of_transforms)
     else:

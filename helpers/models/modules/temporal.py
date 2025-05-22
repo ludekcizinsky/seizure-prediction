@@ -1,6 +1,8 @@
 import torch
 import math
 import torch.nn as nn
+import torch.nn.functional as F
+from omegaconf import DictConfig
 
 class LSTM(nn.Module):
 
@@ -48,3 +50,64 @@ class TransformerEncoder(nn.Module):
     def forward(self, x):
 
         return self.transformer_encoder(x)
+
+
+class Modular1DCNN(nn.Module):
+    def __init__(self, in_channels, conv_layers, use_batchnorm, num_classes, **kwargs):
+        super().__init__()
+        layers = []
+        in_ch = in_channels
+
+        for layer in conv_layers:
+            layers.append(nn.Conv1d(
+                in_channels=in_ch,
+                out_channels=layer.out_channels,
+                kernel_size=layer.kernel_size,
+                stride=layer.stride,
+                padding=layer.padding
+            ))
+            if use_batchnorm:
+                layers.append(nn.BatchNorm1d(layer.out_channels))
+            layers.append(nn.ReLU())
+            if layer.pool:
+                layers.append(nn.MaxPool1d(kernel_size=2))
+            in_ch = layer.out_channels
+
+        self.features = nn.Sequential(*layers)
+        if num_classes is not None:
+            self.classifier = nn.Linear(in_ch, num_classes)
+        else:
+            self.classifier = None
+
+    def forward(self, x):
+
+        # channel first
+        x = x.permute(0, 2, 1)
+
+        # x: (B, C, T)
+        x = self.features(x)
+
+        if self.classifier is not None:
+            # global average pool to (B, C, 1) → (B, C)
+            x = F.adaptive_avg_pool1d(x, 1).squeeze(-1)
+            return self.classifier(x)
+        else:
+            return x
+
+
+
+if __name__ == "__main__":
+
+    from omegaconf import OmegaConf
+    from hydra import initialize, compose
+
+    B, T, C = 2, 3000, 19
+    x = torch.randn(B, C, T)
+
+    with initialize(config_path="../../../configs", version_base="1.1"):
+        cfg = compose(config_name="train")
+
+    print(OmegaConf.to_yaml(cfg))
+    model = Modular1DCNN(cfg)
+    print(model(x).shape)
+

@@ -13,11 +13,10 @@ class SeizurePredictor(pl.LightningModule):
         self.save_hyperparameters(cfg)
         self.model = model
         self.lr = cfg.optim.lr
-        distance_file = cfg.model.get("distance_file",None)
-        if distance_file is not None:
-            distance_matrix = torch.tensor(pd.read_csv(distance_file).pivot(index='from', columns='to', values='distance').to_numpy(),device='cuda:0',dtype=torch.float32)
-            adjacency = (distance_matrix <= cfg.model.get("distance_thresh",None)).int()
-            self.edge_index = torch.argwhere(adjacency==1).transpose(-1,-2).to(torch.long)
+        if cfg.graph_data.enabled:
+            distance_matrix = torch.tensor(pd.read_csv(cfg.graph_data.distance_file).pivot(index='from', columns='to', values='distance').to_numpy(),device='cuda:0',dtype=torch.float32)
+            adjacency = (distance_matrix <= cfg.graph_data.distance_thresh).int()
+            self.edge_index = torch.argwhere(adjacency == 1).transpose(-1, -2).to(torch.long)
         else:
             self.edge_index = []
 
