@@ -1,0 +1,11 @@
+defaults:
+  - default
+  - _self_
+
+conv_layers:
+  - _target_: torch_geometric.nn.GCNConv
+    in_channels: 19
+    out_channels: 32
+  - _target_: torch_geometric.nn.GCNConv
+    in_channels: 32
+    out_channels: 32

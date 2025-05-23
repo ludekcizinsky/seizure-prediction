@@ -1,41 +1,71 @@
 import torch.nn as nn
-from torch_geometric.nn import GCNConv, GATv2Conv
+from torch_geometric.nn import (
+    GCNConv,
+    GATv2Conv,
+    global_mean_pool,
+    global_max_pool,
+    global_add_pool,
+)
+import hydra
 
-class GCN(nn.Module):
-    def __init__(self, in_channels, hidden_channels=32):
+
+class ModularGraph(nn.Module):
+    def __init__(
+        self,
+        conv_layers: list,
+        activation: str = "gelu",
+        use_batchnorm: bool = False,
+        pool_type: str = "mean",
+        num_classes: int | None = None,
+        **kwargs
+    ):
         super().__init__()
+        self.use_batchnorm = use_batchnorm
+        self.act_fn = nn.GELU() if activation.lower()=="gelu" else nn.ReLU()
+        self.convs = nn.ModuleList()
+        if use_batchnorm:
+            self.bns = nn.ModuleList()
 
-        self.gcn1 = GCNConv(in_channels=in_channels, out_channels=hidden_channels)
+        # instantiate convolutional GNN layers from config
+        for conv in conv_layers: 
+            self.convs.append(conv)
+            if use_batchnorm:
+                # BatchNorm over node features
+                self.bns.append(nn.BatchNorm1d(conv.out_channels))
 
-        self.gcn2 = GCNConv(in_channels=hidden_channels, out_channels=hidden_channels)
+        # output feature dimension = out_channels of last conv
+        self.feature_dim = self.convs[-1].out_channels
 
-        self.activation = nn.GELU()
-        
-    def forward(self, x, edge_index):
+        # select pooling function
+        pool_type = pool_type.lower()
+        if pool_type == "mean":
+            self.pool_fn = global_mean_pool
+        elif pool_type == "max":
+            self.pool_fn = global_max_pool
+        elif pool_type in ("sum", "add"):
+            self.pool_fn = global_add_pool
+        else:
+            raise ValueError(f"Unsupported pool_type: {pool_type}")
 
-        x = self.gcn1(x, edge_index)
-        
-        x = self.activation(x)
+        # optional graph-level classification head
+        if num_classes is not None:
+            self.classifier = nn.Linear(self.feature_dim, num_classes)
+        else:
+            self.classifier = None
 
-        x = self.gcn2(x, edge_index)
-        
-        return x
-    
-class GAT(nn.Module):
-    def __init__(self, in_channels, heads_1=8, heads_2=1, hidden_channels=32):
-        super().__init__()
-        self.gat1 = GATv2Conv(in_channels=in_channels, out_channels=hidden_channels, heads=heads_1, concat=True)
+    def forward(self, data):
+        # data: torch_geometric.data.Batch
+        x, edge_index, batch = data.x, data.edge_index, data.batch
 
-        self.gat2 = GATv2Conv(in_channels=hidden_channels*heads_1, out_channels=hidden_channels, heads=heads_2, concat=False)
+        # apply each GNN layer
+        for i, conv in enumerate(self.convs):
+            x = conv(x, edge_index)
+            if self.use_batchnorm:
+                x = self.bns[i](x)
+            x = self.act_fn(x)
 
-        self.activation = nn.GELU()
-        
-    def forward(self, x, edge_index):
+        # pool node features to get graph-level embedding
+        g = self.pool_fn(x, batch)  # shape: (B, feature_dim)
 
-        x = self.gcn1(x, edge_index)
-        
-        x = self.activation(x)
-
-        x = self.gcn2(x, edge_index)
-
-        return x
+        # if classifier exists, return logits per graph, shape (B, num_classes)
+        return self.classifier(g) if self.classifier is not None else g

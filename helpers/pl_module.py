@@ -13,20 +13,10 @@ class SeizurePredictor(pl.LightningModule):
         self.save_hyperparameters(cfg)
         self.model = model
         self.lr = cfg.optim.lr
-        if cfg.graph_data.enabled:
-            distance_matrix = torch.tensor(pd.read_csv(cfg.graph_data.distance_file).pivot(index='from', columns='to', values='distance').to_numpy(),device='cuda:0',dtype=torch.float32)
-            adjacency = (distance_matrix <= cfg.graph_data.distance_thresh).int()
-            self.edge_index = torch.argwhere(adjacency == 1).transpose(-1, -2).to(torch.long)
-        else:
-            self.edge_index = []
 
     def forward(self, x):
-        dtype = next(self.model.parameters()).dtype
-        x = x.to(dtype)
-        if self.edge_index != []:
-            return self.model(x, self.edge_index)
-        else:
-            return self.model(x)
+        x = x.to(next(self.model.parameters()).dtype)
+        return self.model(x)
 
     def training_step(self, batch, batch_idx):
 

@@ -1,34 +1,33 @@
 """
-Constructs a model based on the config file.
+This modules allows us to run both graph and temporal modules in a single forward pass.
+We can run in the following modes:
+- temp -> classifications
+- graph -> classifications
+- temp -> graph -> classifications
 """
 
-import hydra
 import torch.nn as nn
 from omegaconf import DictConfig
+import hydra
 
-from helpers.models.modules.combined import CombinedModel
+
+class ModulardModel(nn.Module):
+    def __init__(self, cfg: DictConfig):
+        super().__init__()
+        self.temporal = hydra.utils.instantiate(cfg.temporal_module) if cfg.temporal_module.is_enabled else None
+        self.graph_builder = hydra.utils.instantiate(cfg.graph_builder) if cfg.graph_builder.is_enabled else None
+        self.graph = hydra.utils.instantiate(cfg.graph_module) if cfg.graph_module.is_enabled else None
 
 
-def get_model(cfg: DictConfig) -> nn.Module:
+    def forward(self, x):
+        # Only‐temporal case
+        if self.temporal is not None and self.graph is None:
+            return self.temporal(x)
 
-    # Graph module
-    if cfg.graph_module.is_enabled:
-        graph_module = hydra.utils.instantiate(cfg.graph_module)
-        graph_dim = cfg.graph_module.out_dim
-    else:
-        graph_module, graph_dim = None, None
+        # Only‐graph case
+        if self.graph is not None and self.temporal is None:
+            graph_batch = self.graph_builder(x)
+            return self.graph(graph_batch)
 
-    # Temporal module
-    if cfg.temporal_module.is_enabled:
-        temporal_module = hydra.utils.instantiate(cfg.temporal_module)
-        temp_dim = cfg.temporal_module.out_dim
-    else:
-        temporal_module, temp_dim = None, None
-
-    # Final model
-    return CombinedModel(
-        graph_module     = graph_module,
-        temporal_module  = temporal_module,
-        graph_out_dim    = graph_dim,
-        temporal_out_dim = temp_dim,
-    )
+        # Both modules case: temp -> graph -> classifier
+        raise NotImplementedError("Both modules case is not implemented yet")

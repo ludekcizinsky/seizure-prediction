@@ -1,10 +1,10 @@
-# Most basic config for training a model
-
-# Set the model to use, specify in model directory
+# Our training pipeline
+# Raw signal (3000, 19) -> Signal Transform -> Temporal Module -> Graph Module -> Classifier
 defaults:
-  - graph_module: disabled
-  - temporal_module: conv1d
   - signal_transform: fft
+  - temporal_module: disabled
+  - graph_builder: distance
+  - graph_module: gcn
   - _self_
 
 # General info
@@ -14,7 +14,7 @@ debug: False # to avoid logging into wandb, instead we log locally using Tensorb
 output_dir: /scratch/izar/${username}/netml/outputs # will be created if it doesn't exist
 repo_root: /home/${username}/netml-project/ # path to the repo on your machine
 
-# w&b 
+# W&B 
 logger:
   project: seizure-prediction # name of the project in wandb, accessible to public
   tags: [dev] # practical when trying to filter experiments
@@ -28,11 +28,6 @@ data:
   root: /scratch/izar/${username}/netml/data # path to the data
   prefetch: True # should be always true, unless you are on your laptop
   normalize: True
-
-graph_data:
-  enabled: False
-  distance_file: "data/distances_3d.csv"
-  distance_thresh: 1
 
 
 # Optimisation

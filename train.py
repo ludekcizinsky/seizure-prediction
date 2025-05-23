@@ -9,7 +9,7 @@ from pytorch_lightning.loggers import WandbLogger, TensorBoardLogger
 from helpers.callbacks import get_callbacks
 from helpers.dataset import get_dataloaders
 from helpers.pl_module import SeizurePredictor
-from helpers.models.constructor import get_model
+from helpers.models.constructor import ModulardModel
 
 
 @hydra.main(config_path="configs", config_name="train.yaml", version_base="1.1")
@@ -38,7 +38,7 @@ def train(cfg: DictConfig):
         )
 
     trn_dataloader, val_dataloader = get_dataloaders(cfg)
-    model = get_model(cfg)
+    model = ModulardModel(cfg)
     pl_module = SeizurePredictor(cfg, model)
     callbacks = get_callbacks(cfg)
 

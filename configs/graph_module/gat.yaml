@@ -1,0 +1,9 @@
+defaults:
+  - default
+  - _self_
+
+conv_layers:
+  - _target_: torch_geometric.nn.GATv2Conv
+    in_channels: 19
+    out_channels: 32
+    heads: 4
