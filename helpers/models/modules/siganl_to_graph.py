@@ -1,3 +1,8 @@
+"""
+In this module, we prepare the data for our graph models.
+"""
+
+
 import torch.nn as nn
 import torch
 from torch_geometric.utils import dense_to_sparse

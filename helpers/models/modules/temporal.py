@@ -2,7 +2,7 @@ import torch
 import math
 import torch.nn as nn
 import torch.nn.functional as F
-
+from transformers import PatchTSTConfig, PatchTSTForClassification
 
 class LSTM(nn.Module):
 
@@ -89,6 +89,70 @@ class ModularTransformerEncoder(nn.Module):
         else:
             # return full sequence of features
             return x                   # → (B, T, transformer_dim)
+
+
+class PatchTSTWrapper(nn.Module):
+    def __init__(
+        self,
+        num_input_channels: int = 19,
+        num_targets: int = None,
+        context_length: int = 354,
+        patch_length: int = 12,
+        patch_stride: int = 12,
+        num_hidden_layers: int = 3,
+        d_model: int = 128,
+        num_attention_heads: int = 4,
+        share_embedding: bool = True,
+        share_projection: bool = False,
+        channel_attention: bool = False,
+        norm_type: str = "layernorm",
+        use_cls_token: bool = True,
+        attention_dropout: float = 0.1,
+        positional_dropout: float = 0.1,
+        patch_dropout: float = 0.1,
+        **_
+    ):
+        super().__init__()
+        cfg = PatchTSTConfig(
+            num_input_channels=num_input_channels,
+            num_targets=num_targets or 0,    # dummy if None
+            context_length=context_length,
+            patch_length=patch_length,
+            patch_stride=patch_stride,
+            use_cls_token=use_cls_token,
+            num_hidden_layers=num_hidden_layers,
+            d_model=d_model,
+            num_attention_heads=num_attention_heads,
+            share_embedding=share_embedding,
+            channel_attention=channel_attention,
+            ffn_dim=4*d_model,
+            share_projection=share_projection,
+            norm_type=norm_type,
+            attention_dropout=attention_dropout,
+            positional_dropout=positional_dropout,
+            patch_dropout=patch_dropout,
+        )
+
+        self.has_classifier = num_targets is not None
+
+        if self.has_classifier:
+            # standard classification model
+            self.model = PatchTSTForClassification(config=cfg)
+        else:
+            # base model without the classification head
+            self.model = PatchTSTModel(config=cfg)
+
+    def forward(self, x):
+        """
+        x: (B, T=context_length, C=num_input_channels)
+        """
+        if self.has_classifier:
+            out = self.model(past_values=x, return_dict=True)
+            return out.prediction_logits       # (B, num_targets)
+        else:
+            out = self.model(past_values=x, return_dict=True)
+            # last_hidden_state: (B, num_patches, d_model)
+            return out.last_hidden_state
 
 
 class Modular1DCNN(nn.Module):
