@@ -1,13 +1,15 @@
 #!/bin/bash
 #SBATCH --job-name=lstm_ablation
-#SBATCH --output=/scratch/izar/$USER/netml/outputs/slurm/%x.%j.out
-#SBATCH --error=/scratch/izar/$USER/netml/outputs/slurm/%x.%j.err
+#SBATCH --output=/scratch/izar/cizinsky/netml/outputs/slurm/%x.%j.out
+#SBATCH --error=/scratch/izar/cizinsky/netml/outputs/slurm/%x.%j.err
 #SBATCH --time=08:00:00
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=20
 #SBATCH --mem=32G
 #SBATCH --ntasks=1
 #SBATCH --account=master
+
+USER=cizinsky
 
 # Ensure output directory exists
 mkdir -p /scratch/izar/$USER/netml/outputs/slurm
