@@ -5,31 +5,34 @@ from functools import partial
 from torch.utils.data import DataLoader
 from torch.utils.data import random_split
 import torch
+from hydra.utils import instantiate
 
 import pandas as pd
 
-from helpers.filters import get_filter, normalize_signal, make_pipeline
+from helpers.filters import normalize_signal, make_pipeline
 
 
-def get_datasets(cfg):
+def get_datasets(cfg, split="train"):
 
     # Load
-    path = f"{cfg.data.root}/train"
+    path = f"{cfg.data.root}/{split}"
     clips = pd.read_parquet(f"{path}/segments.parquet")
-    if cfg.data.subset > 0:
+    if cfg.data.subset > 0 and split == "train":
         clips = clips.iloc[: cfg.data.subset]
 
+    # Get signal transform
     list_of_transforms = []
     readable_transforms = []
-    if cfg.model.normalize:
+    if cfg.data.normalize:
         mean = torch.load(f"{cfg.repo_root}/data/trn_mean.pt").type(torch.float64).numpy()
         std = torch.load(f"{cfg.repo_root}/data/trn_std.pt").type(torch.float64).numpy()
         norm = partial(normalize_signal, mean=mean, std=std)
         list_of_transforms.append(norm)
         readable_transforms.append("normalize")
-    if cfg.model.signal_transform is not None:
-        list_of_transforms.append(get_filter(cfg))
-        readable_transforms.append(cfg.model.signal_transform)
+    if cfg.signal_transform.is_enabled:
+        signal_transform = instantiate(cfg.signal_transform)
+        list_of_transforms.append(signal_transform)
+        readable_transforms.append(cfg.signal_transform.name)
     if len(list_of_transforms) > 0:
         signal_transform = make_pipeline(list_of_transforms)
     else:
@@ -41,7 +44,11 @@ def get_datasets(cfg):
         signals_root=path,
         signal_transform=signal_transform,
         prefetch=cfg.data.prefetch,
+        return_id=split == "test",
     )
+
+    if split == "test":
+        return dataset
 
     # Split
     train_size = int(cfg.data.trn_frac * len(dataset))

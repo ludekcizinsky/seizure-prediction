@@ -1,21 +1,24 @@
-# Most basic config for training a model
-
-# Set the model to use, specify in model directory
+# Our training pipeline
+# Raw signal (3000, 19) -> Signal Transform -> Temporal Module -> Graph Module -> Classifier
 defaults:
-  - model: baseline
+  - signal_transform: fft
+  - temporal_module: disabled
+  - graph_builder: distance
+  - graph_module: gcn
   - _self_
 
 # General info
-username: 'mlebras' # your izar username
+username: 'cizinsky' # your izar username
 seed: 42
 debug: False # to avoid logging into wandb, instead we log locally using Tensorboard
 output_dir: /scratch/izar/${username}/netml/outputs # will be created if it doesn't exist
 repo_root: /home/${username}/netml-project/ # path to the repo on your machine
+launch_cmd: null # will be set in train.py during runtime
 
-# w&b 
+# W&B 
 logger:
   project: seizure-prediction # name of the project in wandb, accessible to public
-  tags: [baseline] # practical when trying to filter experiments
+  tags: [dev] # practical when trying to filter experiments
 
 # Data 
 data:
@@ -25,6 +28,8 @@ data:
   num_workers: 8
   root: /scratch/izar/${username}/netml/data # path to the data
   prefetch: True # should be always true, unless you are on your laptop
+  normalize: True
+
 
 # Optimisation
 optim:
@@ -46,7 +51,6 @@ trainer:
   max_epochs: 1000
   accelerator: gpu
   devices: 1
-  checkpoint_every_n_epochs: 250
   check_val_every_n_epoch: 25
   precision: 32
 

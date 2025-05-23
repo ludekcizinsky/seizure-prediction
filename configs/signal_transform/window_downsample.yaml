@@ -1,0 +1,7 @@
+defaults:
+  - default
+  - _self_
+
+name: window_downsample
+_target_: helpers.filters.make_window_downsample_filter
+window: 100

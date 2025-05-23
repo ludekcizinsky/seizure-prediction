@@ -1,0 +1,12 @@
+is_enabled: True
+
+_target_: helpers.models.modules.graph.ModularGraph
+
+activation: gelu       # "gelu" or "relu"
+use_batchnorm: true    # apply BatchNorm after each conv
+
+# graph-level pooling: "mean", "max", or "sum"
+pool_type: mean
+
+# graph-level classification: set to integer for logits, null for embeddings
+num_classes: 1

@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime
 import os
 
@@ -14,19 +15,17 @@ from helpers.pl_module import SeizurePredictor
 @hydra.main(config_path="configs", config_name="train.yaml", version_base="1.1")
 def train(cfg: DictConfig):
 
-    print("-" * 50)
-    print(OmegaConf.to_yaml(cfg))  # print config to verify
-    print("-" * 50)
-
     L.seed_everything(cfg.seed)
 
     os.makedirs(cfg.output_dir, exist_ok=True)
     if not cfg.debug:
+        cfg.launch_cmd = " ".join(sys.argv)
         logger = WandbLogger(
             project=cfg.logger.project,
             save_dir=cfg.output_dir,
             log_model="all",
             tags=cfg.logger.tags,
+            config=OmegaConf.to_container(cfg, resolve=True),
         )
     else:
         run_version = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -36,9 +35,12 @@ def train(cfg: DictConfig):
             version=run_version,
         )
 
+    print("-" * 50)
+    print(OmegaConf.to_yaml(cfg))  # print config to verify
+    print("-" * 50)
+
     trn_dataloader, val_dataloader = get_dataloaders(cfg)
-    model = hydra.utils.instantiate(cfg.model.module)
-    pl_module = SeizurePredictor(cfg, model)
+    pl_module = SeizurePredictor(cfg)
     callbacks = get_callbacks(cfg)
 
     trainer = L.Trainer(
