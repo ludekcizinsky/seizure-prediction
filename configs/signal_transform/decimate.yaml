@@ -1,0 +1,7 @@
+defaults:
+  - default
+  - _self_
+
+name: decimate
+_target_: helpers.filters.make_decimate_filter
+q: 10

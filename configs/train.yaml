@@ -4,6 +4,7 @@
 defaults:
   - graph_module: disabled
   - temporal_module: conv1d
+  - signal_transform: fft
   - _self_
 
 # General info
@@ -16,7 +17,7 @@ repo_root: /home/${username}/netml-project/ # path to the repo on your machine
 # w&b 
 logger:
   project: seizure-prediction # name of the project in wandb, accessible to public
-  tags: [baseline] # practical when trying to filter experiments
+  tags: [dev] # practical when trying to filter experiments
 
 # Data 
 data:
@@ -27,7 +28,6 @@ data:
   root: /scratch/izar/${username}/netml/data # path to the data
   prefetch: True # should be always true, unless you are on your laptop
   normalize: True
-  signal_transform: fft_filtering
 
 graph_data:
   enabled: False

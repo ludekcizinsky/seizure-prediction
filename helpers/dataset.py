@@ -5,10 +5,11 @@ from functools import partial
 from torch.utils.data import DataLoader
 from torch.utils.data import random_split
 import torch
+from hydra.utils import instantiate
 
 import pandas as pd
 
-from helpers.filters import get_filter, normalize_signal, make_pipeline
+from helpers.filters import normalize_signal, make_pipeline
 
 
 def get_datasets(cfg):
@@ -27,9 +28,10 @@ def get_datasets(cfg):
         norm = partial(normalize_signal, mean=mean, std=std)
         list_of_transforms.append(norm)
         readable_transforms.append("normalize")
-    if cfg.data.signal_transform is not None:
-        list_of_transforms.append(get_filter(cfg))
-        readable_transforms.append(cfg.data.signal_transform)
+    if cfg.signal_transform.is_enabled:
+        signal_transform = instantiate(cfg.signal_transform)
+        list_of_transforms.append(signal_transform)
+        readable_transforms.append(cfg.signal_transform.name)
     if len(list_of_transforms) > 0:
         signal_transform = make_pipeline(list_of_transforms)
     else:
