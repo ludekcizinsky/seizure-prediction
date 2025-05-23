@@ -1,0 +1,10 @@
+defaults:
+  - default
+  - _self_
+
+name: time_band_pass
+_target_: helpers.filters.make_time_filter
+order:     4
+low_freq:  0.5
+high_freq: 30.0
+fs:        250.0

@@ -1,0 +1,8 @@
+defaults:
+  - default
+  - _self_
+
+name: wavelet
+_target_: helpers.filters.make_wavelet_approx_filter
+wavelet: db4
+level: 4

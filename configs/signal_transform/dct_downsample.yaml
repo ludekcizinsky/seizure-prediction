@@ -1,0 +1,7 @@
+defaults:
+  - default
+  - _self_
+
+name: dct_downsample
+_target_: helpers.filters.make_dct_downsample_filter
+K: 500

@@ -12,11 +12,51 @@ def normalize_signal(x: np.ndarray,
     return (x - mean) / std
 
 
-def time_filtering(x: np.ndarray) -> np.ndarray:
-    """Filter signal in the time domain"""
-    bp_filter = signal.butter(4, (0.5, 30), btype="bandpass", output="sos", fs=250)
-    return signal.sosfiltfilt(bp_filter, x, axis=0).copy()
+def time_filtering(
+    x: np.ndarray,
+    order: int,
+    low_freq: float,
+    high_freq: float,
+    fs: float
+) -> np.ndarray:
+    """
+    Band-pass filter in the time domain.
 
+    Args:
+        x         : (T, C) raw signal
+        order     : filter order
+        low_freq  : lower cutoff (Hz)
+        high_freq : upper cutoff (Hz)
+        fs        : sampling rate (Hz)
+    Returns:
+        (T, C) filtered signal
+    """
+    sos = signal.butter(
+        N=order,
+        Wn=(low_freq, high_freq),
+        btype="bandpass",
+        output="sos",
+        fs=fs
+    )
+    return signal.sosfiltfilt(sos, x, axis=0).copy()
+
+def make_time_filter(
+    order: int,
+    low_freq: float,
+    high_freq: float,
+    fs: float
+):
+    """
+    Hydra factory: returns a callable filter_fn(x)
+    with order, low/high cutoffs, and fs baked in.
+    """
+    return partial(
+        time_filtering,
+        order=order,
+        low_freq=low_freq,
+        high_freq=high_freq,
+        fs=fs
+    )
 
 def fft_filtering(
     x: np.ndarray,
@@ -92,6 +132,13 @@ def window_downsample(x: np.ndarray, window: int = 100) -> np.ndarray:
     x = x[: n*window].reshape(n, window, C)
     return x.mean(axis=1)
 
+def make_window_downsample_filter(window: int, **kwargs):
+    """
+    Hydra factory: returns a single-arg callable so you only
+    need to pass `x` at runtime.
+    """
+    return partial(window_downsample, window=window)
+
 def dct_downsample(x: np.ndarray, K: int = 500) -> np.ndarray:
     """
     DCT-II along time, keep first K coefficients.
@@ -99,6 +146,13 @@ def dct_downsample(x: np.ndarray, K: int = 500) -> np.ndarray:
     """
     X = dct(x, axis=0, norm='ortho')
     return X[:K]
+
+def make_dct_downsample_filter(K: int, **kwargs):
+    """
+    Hydra factory: returns a single-arg callable so you only
+    need to pass `x` at runtime.
+    """
+    return partial(dct_downsample, K=K)
 
 def wavelet_approx(x: np.ndarray, wavelet='db4', level=4) -> np.ndarray:
     """
@@ -111,6 +165,14 @@ def wavelet_approx(x: np.ndarray, wavelet='db4', level=4) -> np.ndarray:
     # we only need cA_L for each channel:
     cAs = np.stack([c[0] for c in coeffs], axis=1)
     return cAs
+
+def make_wavelet_approx_filter(wavelet: str, level: int, **kwargs):
+
+    """
+    Hydra factory: returns a single-arg callable so you only
+    need to pass `x` at runtime.
+    """
+    return partial(wavelet_approx, wavelet=wavelet, level=level)
 
 def make_pipeline(steps: Iterable[Callable]) -> Callable:
     """
