@@ -15,10 +15,6 @@ from helpers.pl_module import SeizurePredictor
 @hydra.main(config_path="configs", config_name="train.yaml", version_base="1.1")
 def train(cfg: DictConfig):
 
-    print("-" * 50)
-    print(OmegaConf.to_yaml(cfg))  # print config to verify
-    print("-" * 50)
-
     L.seed_everything(cfg.seed)
 
     os.makedirs(cfg.output_dir, exist_ok=True)
@@ -38,6 +34,10 @@ def train(cfg: DictConfig):
             name="debug",
             version=run_version,
         )
+
+    print("-" * 50)
+    print(OmegaConf.to_yaml(cfg))  # print config to verify
+    print("-" * 50)
 
     trn_dataloader, val_dataloader = get_dataloaders(cfg)
     pl_module = SeizurePredictor(cfg)

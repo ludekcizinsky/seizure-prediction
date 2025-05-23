@@ -12,14 +12,15 @@ import pandas as pd
 from helpers.filters import normalize_signal, make_pipeline
 
 
-def get_datasets(cfg):
+def get_datasets(cfg, split="train"):
 
     # Load
-    path = f"{cfg.data.root}/train"
+    path = f"{cfg.data.root}/{split}"
     clips = pd.read_parquet(f"{path}/segments.parquet")
-    if cfg.data.subset > 0:
+    if cfg.data.subset > 0 and split == "train":
         clips = clips.iloc[: cfg.data.subset]
 
+    # Get signal transform
     list_of_transforms = []
     readable_transforms = []
     if cfg.data.normalize:
@@ -43,7 +44,11 @@ def get_datasets(cfg):
         signals_root=path,
         signal_transform=signal_transform,
         prefetch=cfg.data.prefetch,
+        return_id=split == "test",
     )
+
+    if split == "test":
+        return dataset
 
     # Split
     train_size = int(cfg.data.trn_frac * len(dataset))

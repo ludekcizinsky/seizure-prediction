@@ -49,6 +49,18 @@ class SeizurePredictor(pl.LightningModule):
         self.log("val/acc", acc, on_step=False, on_epoch=True)
         self.log("val/f1", f1, on_step=False, on_epoch=True)
 
+    def predict_step(self, batch, batch_idx):
+        x_batch, y_batch = batch
+        x_batch = x_batch  # [batch_size, seq_len, input_dim]
+
+        logits = self(x_batch).squeeze(1)  # [batch_size, ]
+        preds = (torch.sigmoid(logits) > 0.5).int()
+
+        return {
+            "y_batch": y_batch.int() if type(y_batch) == torch.Tensor else y_batch,
+            "preds_batch": preds,
+        }
+
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(
             self.model.parameters(),
