@@ -1,6 +1,8 @@
 import sys
 from datetime import datetime
 import os
+import traceback
+
 
 import hydra
 import pytorch_lightning as L
@@ -10,7 +12,9 @@ from pytorch_lightning.loggers import WandbLogger, TensorBoardLogger
 from helpers.callbacks import get_callbacks
 from helpers.dataset import get_dataloaders
 from helpers.pl_module import SeizurePredictor
+from helpers.utils import run_eval_and_save_submission
 
+import wandb
 
 @hydra.main(config_path="configs", config_name="train.yaml", version_base="1.1")
 def train(cfg: DictConfig):
@@ -57,8 +61,15 @@ def train(cfg: DictConfig):
         check_val_every_n_epoch=cfg.trainer.check_val_every_n_epoch,
     )
 
-    trainer.fit(pl_module, trn_dataloader, val_dataloader)
-
+    try:
+        trainer.fit(pl_module, trn_dataloader, val_dataloader)
+        run_eval_and_save_submission(trainer, cfg)
+    except Exception as e:
+        print(f"Error: {e}")
+        print(f"Traceback: {traceback.format_exc()}")
+        print("-" * 50)
+    finally:
+        wandb.finish()
 
 if __name__ == "__main__":
     train()

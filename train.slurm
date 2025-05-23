@@ -7,8 +7,7 @@
 #SBATCH --cpus-per-task=10
 #SBATCH --mem=16G
 #SBATCH --ntasks=1
-#SBATCH --qos=cs-503
-#SBATCH --account=cs-503
+#SBATCH --account=master
 
 # Ensure output directory exists
 mkdir -p /scratch/izar/$USER/netml/outputs/slurm
