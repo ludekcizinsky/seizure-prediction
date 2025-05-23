@@ -2,8 +2,19 @@ defaults:
   - default
   - _self_
 
+# Two‐layer GATv2 baseline:
+#  • First layer: multi‐head attention to learn 32 features per head
+#  • Second layer: aggregate heads into a single 32‐dim output
 conv_layers:
   - _target_: torch_geometric.nn.GATv2Conv
     in_channels: 19
     out_channels: 32
     heads: 4
+    concat: true          # keep heads separate (32 × 4 dims)
+    dropout: 0.6
+  - _target_: torch_geometric.nn.GATv2Conv
+    in_channels: 128   # match first layer’s concat output
+    out_channels: 32
+    heads: 1
+    concat: false         # average heads into 32‐dim
+    dropout: 0.6

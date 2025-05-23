@@ -1,7 +1,5 @@
 import torch.nn as nn
 from torch_geometric.nn import (
-    GCNConv,
-    GATv2Conv,
     global_mean_pool,
     global_max_pool,
     global_add_pool,
@@ -26,15 +24,20 @@ class ModularGraph(nn.Module):
         if use_batchnorm:
             self.bns = nn.ModuleList()
 
-        # instantiate convolutional GNN layers from config
-        for conv in conv_layers: 
+        prev_channels = None
+        for conv in conv_layers:
             self.convs.append(conv)
+            # determine feature dim after this conv
+            out_ch = conv.out_channels
+            heads = getattr(conv, "heads", 1)
+            # for attention convs, default concat=True if attribute exists
+            concat = getattr(conv, "concat", False)
+            feat_dim = out_ch * heads if concat else out_ch
             if use_batchnorm:
-                # BatchNorm over node features
-                self.bns.append(nn.BatchNorm1d(conv.out_channels))
+                self.bns.append(nn.BatchNorm1d(feat_dim))
+            prev_channels = feat_dim
 
-        # output feature dimension = out_channels of last conv
-        self.feature_dim = self.convs[-1].out_channels
+        self.feature_dim = prev_channels
 
         # select pooling function
         pool_type = pool_type.lower()
@@ -47,14 +50,13 @@ class ModularGraph(nn.Module):
         else:
             raise ValueError(f"Unsupported pool_type: {pool_type}")
 
-        # optional graph-level classification head
+        # optional graph-level classifier
         if num_classes is not None:
             self.classifier = nn.Linear(self.feature_dim, num_classes)
         else:
             self.classifier = None
 
     def forward(self, data):
-        # data: torch_geometric.data.Batch
         x, edge_index, batch = data.x, data.edge_index, data.batch
 
         # apply each GNN layer
@@ -64,8 +66,8 @@ class ModularGraph(nn.Module):
                 x = self.bns[i](x)
             x = self.act_fn(x)
 
-        # pool node features to get graph-level embedding
-        g = self.pool_fn(x, batch)  # shape: (B, feature_dim)
+        # pool to graph-level embedding
+        g = self.pool_fn(x, batch)
 
-        # if classifier exists, return logits per graph, shape (B, num_classes)
+        # return logits if head exists, else embeddings
         return self.classifier(g) if self.classifier is not None else g
