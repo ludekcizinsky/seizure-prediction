@@ -11,15 +11,18 @@ from torch.nn.utils import clip_grad_norm_
 
 def get_callbacks(cfg):
  
-    checkpoint_cb = ModelCheckpoint(
-        every_n_epochs=cfg.trainer.checkpoint_every_n_epochs,
-    ) # Save only the last checkpoint
+    best_ckpt = ModelCheckpoint(
+        monitor="val/f1",
+        mode="max",
+        save_top_k=1,
+        auto_insert_metric_name=False,
+    )
 
     progress_bar = EpochProgressBar()
     lr_scheduler = WarmupPlateauScheduler(cfg)
     grad_norm = GradNormWithClip(cfg)
 
-    callbacks = [checkpoint_cb, progress_bar, lr_scheduler, grad_norm]
+    callbacks = [best_ckpt, progress_bar, lr_scheduler, grad_norm]
 
     return callbacks
 

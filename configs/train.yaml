@@ -13,6 +13,7 @@ seed: 42
 debug: False # to avoid logging into wandb, instead we log locally using Tensorboard
 output_dir: /scratch/izar/${username}/netml/outputs # will be created if it doesn't exist
 repo_root: /home/${username}/netml-project/ # path to the repo on your machine
+launch_cmd: null # will be set in train.py during runtime
 
 # W&B 
 logger:
@@ -50,7 +51,6 @@ trainer:
   max_epochs: 1000
   accelerator: gpu
   devices: 1
-  checkpoint_every_n_epochs: 250
   check_val_every_n_epoch: 25
   precision: 32
 

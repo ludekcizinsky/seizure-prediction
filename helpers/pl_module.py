@@ -1,17 +1,15 @@
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import pandas as pd
-from pytorch_lightning.utilities import grad_norm
 from torchmetrics.functional.classification import binary_f1_score
 
+from helpers.models.constructor import ModulardModel
 
 class SeizurePredictor(pl.LightningModule):
-    def __init__(self, cfg, model):
+    def __init__(self, cfg):
         super().__init__()
         self.save_hyperparameters(cfg)
-        self.model = model
+        self.model = ModulardModel(cfg)
         self.lr = cfg.optim.lr
 
     def forward(self, x):

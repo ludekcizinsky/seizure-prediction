@@ -1,3 +1,4 @@
+import sys
 from datetime import datetime
 import os
 
@@ -9,7 +10,6 @@ from pytorch_lightning.loggers import WandbLogger, TensorBoardLogger
 from helpers.callbacks import get_callbacks
 from helpers.dataset import get_dataloaders
 from helpers.pl_module import SeizurePredictor
-from helpers.models.constructor import ModulardModel
 
 
 @hydra.main(config_path="configs", config_name="train.yaml", version_base="1.1")
@@ -23,11 +23,13 @@ def train(cfg: DictConfig):
 
     os.makedirs(cfg.output_dir, exist_ok=True)
     if not cfg.debug:
+        cfg.launch_cmd = " ".join(sys.argv)
         logger = WandbLogger(
             project=cfg.logger.project,
             save_dir=cfg.output_dir,
             log_model="all",
             tags=cfg.logger.tags,
+            config=OmegaConf.to_container(cfg, resolve=True),
         )
     else:
         run_version = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -38,8 +40,7 @@ def train(cfg: DictConfig):
         )
 
     trn_dataloader, val_dataloader = get_dataloaders(cfg)
-    model = ModulardModel(cfg)
-    pl_module = SeizurePredictor(cfg, model)
+    pl_module = SeizurePredictor(cfg)
     callbacks = get_callbacks(cfg)
 
     trainer = L.Trainer(
