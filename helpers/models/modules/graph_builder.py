@@ -46,6 +46,7 @@ class DistanceGraphBuilder(nn.Module):
         data_list = []
         for node_feats in x:
             # node_feats: (N, F)
+            node_feats = node_feats.transpose(-2,-1)
             data_list.append(
                 Data(
                     x=node_feats,
