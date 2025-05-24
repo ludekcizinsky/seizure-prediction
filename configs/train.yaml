@@ -18,7 +18,11 @@ launch_cmd: null # will be set in train.py during runtime
 
 # W&B 
 logger:
-  project: seizure-prediction # name of the project in wandb, accessible to public
+  # do NOT change project or entity, this ensures that we log experiments to the same project and entity
+  # the project is accessible to public,therefore everyone can log there
+  # w&b automatically figures your username from the environment variable WANDB_API_KEY
+  project: seizure-prediction 
+  entity: ludekcizinsky 
   tags: [part1] # practical when trying to filter experiments
 
 # Data 
