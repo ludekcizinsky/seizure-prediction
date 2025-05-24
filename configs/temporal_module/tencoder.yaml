@@ -6,7 +6,7 @@ _target_: helpers.models.modules.temporal.ModularTransformerEncoder
 
 in_channels: 19
 
-transformer_dim: 128
+transformer_dim: 64
 num_heads: 4
 num_layers: 2
 dropout: 0.1
