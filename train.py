@@ -26,6 +26,7 @@ def train(cfg: DictConfig):
         cfg.launch_cmd = " ".join(sys.argv)
         logger = WandbLogger(
             project=cfg.logger.project,
+            entity=cfg.logger.entity,
             save_dir=cfg.output_dir,
             log_model="all",
             tags=cfg.logger.tags,

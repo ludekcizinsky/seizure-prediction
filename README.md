@@ -38,3 +38,35 @@ You can also submit a job to the cluster using the provided Slurm script:
 ```bash
 sbatch train.slurm
 ```
+
+### Submitting to Kaggle (via CLI)
+
+Make sure you have kaggle CLI installed:
+
+```bash
+pip install kaggle
+```
+
+Then, go to Kaggle and under settings, create a new API token. This will download a file called `kaggle.json`. By default the CLI looks for it under `~/.kaggle/kaggle.json`. Therefore, create the directory and then copy from your local machine the json file. Finally, make sure the file is not world-readable:
+
+```bash
+chmod 600 ~/.kaggle/kaggle.json
+```
+
+To verify that the CLI is working, run:
+
+```bash
+kaggle competitions submissions -c epfl-network-machine-learning-2025
+```
+
+which lists all our (as a team) submissions to the competition.
+
+
+Finally, to submit the predictions, run (make sure to replace `run_erec0tvb` with the name of the run you want to submit, and `My submission message` with your submission message):
+
+```bash
+kaggle competitions submit \
+  -c epfl-network-machine-learning-2025 \
+  -f submissions/run_erec0tvb.csv \
+  -m "Part 1 / FFT / LSTM / Dropout=0.2"
+```
