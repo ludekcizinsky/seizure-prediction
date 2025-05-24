@@ -34,6 +34,7 @@ data:
   root: /scratch/izar/${username}/netml/data # path to the data
   prefetch: True # should be always true, unless you are on your laptop
   normalize: False
+  use_weighted_sampler: False # if True, we use a weighted sampler to balance the classes during training
 
 
 # Optimisation

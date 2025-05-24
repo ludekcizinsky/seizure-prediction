@@ -40,3 +40,6 @@ python train.py temporal_module=lstm graph_builder=disabled graph_module=disable
 # - dropout (default: 0.3)
 python train.py temporal_module=lstm graph_builder=disabled graph_module=disabled temporal_module.dropout=0.1 'logger.tags=[part1, fft, lstm, dropout]'
 python train.py temporal_module=lstm graph_builder=disabled graph_module=disabled temporal_module.dropout=0.2 'logger.tags=[part1, fft, lstm, dropout]'
+
+# - weight sampler (default: False)
+python train.py temporal_module=lstm graph_builder=disabled graph_module=disabled data.use_weighted_sampler=True 'logger.tags=[part1, fft, lstm, weighted_sampler]'

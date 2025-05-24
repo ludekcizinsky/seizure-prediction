@@ -4,9 +4,11 @@ from functools import partial
 
 from torch.utils.data import DataLoader
 from torch.utils.data import random_split
+from torch.utils.data import WeightedRandomSampler
+
 import torch
 from hydra.utils import instantiate
-
+import numpy as np
 import pandas as pd
 
 from helpers.filters import normalize_signal, make_pipeline
@@ -58,15 +60,29 @@ def get_datasets(cfg, split="train"):
 
     return train_dataset, val_dataset
 
+def get_weighted_sampler(dataset):
+    labels = [int(dataset[i][1]) for i in range(len(dataset))]
+    labels = np.array(labels)
+    class_counts = np.bincount(labels, minlength=2)
+    class_weights = 1.0 / (class_counts + 1e-8)
+    sample_weights = class_weights[labels]
+    sampler = WeightedRandomSampler(
+        weights=torch.DoubleTensor(sample_weights),
+        num_samples=len(sample_weights),
+        replacement=True,
+    )
+    return sampler
 
 def get_dataloaders(cfg):
     dataset_tr, dataset_val = get_datasets(cfg)
+    sampler = get_weighted_sampler(dataset_tr) if cfg.data.use_weighted_sampler else None
 
     trn_dataloader = DataLoader(
         dataset_tr,
         batch_size=cfg.data.batch_size,
         num_workers=cfg.data.num_workers,
-        shuffle=True,
+        sampler=sampler,
+        shuffle=(sampler is None),
     )
     val_dataloader = DataLoader(
         dataset_val,
