@@ -8,17 +8,17 @@ use_batchnorm: true
 in_channels: 19
 conv_layers:
   - out_channels: 64
-    kernel_size: 7
+    kernel_size: 13
     stride: 1
-    padding: 3
+    padding: 6
     pool: true
   - out_channels: 128
+    kernel_size: 9
+    stride: 1
+    padding: 4
+    pool: true
+  - out_channels: 256
     kernel_size: 5
     stride: 1
     padding: 2
-    pool: true
-  - out_channels: 256
-    kernel_size: 3
-    stride: 1
-    padding: 1
     pool: false
