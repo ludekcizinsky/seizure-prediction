@@ -28,7 +28,7 @@ logger:
 # Data 
 data:
   subset: -1 # -1 = disable, else int, we have around 11k samples
-  trn_frac: 0.9
+  trn_frac: 0.9 # = 11693 train samples, and 1300 val samples
   batch_size: 512
   num_workers: 20
   root: /scratch/izar/${username}/netml/data # path to the data

@@ -12,7 +12,7 @@ from torch.nn.utils import clip_grad_norm_
 def get_callbacks(cfg):
  
     best_ckpt = ModelCheckpoint(
-        monitor="val/f1",
+        monitor="val/f1_macro",
         mode="max",
         save_top_k=1,
         auto_insert_metric_name=False,
@@ -99,7 +99,7 @@ class WarmupPlateauScheduler(Callback):
         epoch = trainer.current_epoch
         warmup_epochs = self.cfg.optim.warmup_epochs
         if epoch >= warmup_epochs:
-            self.plateau_scheduler.step(metrics["val/f1"])
+            self.plateau_scheduler.step(metrics["val/f1_macro"])
 
 
 class GradNormWithClip(Callback):

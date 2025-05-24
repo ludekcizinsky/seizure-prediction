@@ -62,11 +62,11 @@ kaggle competitions submissions -c epfl-network-machine-learning-2025
 which lists all our (as a team) submissions to the competition.
 
 
-Finally, to submit the predictions, run (make sure to replace `run_erec0tvb` with the name of the run you want to submit, and `My submission message` with your submission message):
+Finally, to submit the predictions, run (make sure to replace `run_erec0tvb` with the name of the run you want to submit, and `My submission message` with run_id, so we can look up its details in wandb):
 
 ```bash
 kaggle competitions submit \
   -c epfl-network-machine-learning-2025 \
   -f submissions/run_erec0tvb.csv \
-  -m "Part 1 / FFT / LSTM / Dropout=0.2"
+  -m "run_erec0tvb"
 ```
