@@ -46,3 +46,6 @@ python train.py temporal_module=disabled graph_builder=distance graph_module=gcn
 # - distance threshold (default: 1)
 python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_builder.distance_threshold=1.5 'logger.tags=[part1, fft, gcn, distance_threshold]'
 python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_builder.distance_threshold=0.5 'logger.tags=[part1, fft, gcn, distance_threshold]'
+
+# - weighted sampler (default: False)
+python train.py temporal_module=disabled graph_builder=distance graph_module=gcn data.use_weighted_sampler=True 'logger.tags=[part1, fft, gcn, weighted_sampler]'
