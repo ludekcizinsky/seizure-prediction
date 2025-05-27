@@ -25,7 +25,7 @@ class ModularGraph(nn.Module):
             self.bns = nn.ModuleList()
 
         prev_channels = None
-        for conv in conv_layers:
+        for conv in conv_layers.values():
             self.convs.append(conv)
             # determine feature dim after this conv
             out_ch = conv.out_channels

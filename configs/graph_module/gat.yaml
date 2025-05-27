@@ -7,13 +7,15 @@ _target_: helpers.models.modules.graph.ModularGraph
 #  • First layer: multi‐head attention to learn 32 features per head
 #  • Second layer: aggregate heads into a single 32‐dim output
 conv_layers:
-  - _target_: torch_geometric.nn.GATv2Conv
+  conv1:
+    _target_: torch_geometric.nn.GATv2Conv
     in_channels: 354
     out_channels: 32
     heads: 8
     concat: true          # keep heads separate (32 × 4 dims)
     dropout: 0.6
-  - _target_: torch_geometric.nn.GATv2Conv
+  conv2:
+    _target_: torch_geometric.nn.GATv2Conv
     in_channels: 256   # match first layer’s concat output
     out_channels: 32
     heads: 1

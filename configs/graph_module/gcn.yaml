@@ -4,12 +4,14 @@ defaults:
 
 _target_: helpers.models.modules.graph.ModularGraph
 conv_layers:
-  - _target_: torch_geometric.nn.GCNConv
+  conv1:
+    _target_: torch_geometric.nn.GCNConv
     in_channels: 354
-    out_channels: 64
-  - _target_: torch_geometric.nn.GCNConv
-    in_channels: 64 # Matching out_channels of previous layer
-    out_channels: 64
+    out_channels: 128
+  conv2:
+    _target_: torch_geometric.nn.GCNConv
+    in_channels: 128
+    out_channels: 128
 activation: gelu
 use_batchnorm: False
 pool_type: mean

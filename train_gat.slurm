@@ -36,12 +36,12 @@ python train.py temporal_module=disabled graph_builder=distance graph_module=gat
 python train.py temporal_module=disabled graph_builder=distance graph_module=gat graph_module.use_batchnorm=True 'logger.tags=[part1, fft, gat, batchnorm]'
 
 # - hidden dim (default: 64)
-python train.py temporal_module=disabled graph_builder=distance graph_module=gat_small 'logger.tags=[part1, fft, gat, hidden_dim]'
-python train.py temporal_module=disabled graph_builder=distance graph_module=gat_big 'logger.tags=[part1, fft, gat, hidden_dim]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gat graph_module.conv_layers.conv1.out_channels=16 graph_module.conv_layers.conv2.in_channels=128 graph_module.conv_layers.conv2.out_channels=16 'logger.tags=[part1, fft, gat, hidden_dim]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gat graph_module.conv_layers.conv1.out_channels=64 graph_module.conv_layers.conv2.in_channels=512 graph_module.conv_layers.conv2.out_channels=64 'logger.tags=[part1, fft, gat, hidden_dim]'
 
 # - num heads (default: 8)
-python train.py temporal_module=disabled graph_builder=distance graph_module=gat_few_heads 'logger.tags=[part1, fft, gat, heads]'
-python train.py temporal_module=disabled graph_builder=distance graph_module=gat_many_heads 'logger.tags=[part1, fft, gat, heads]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gat graph_module.conv_layers.conv1.heads=4 graph_module.conv_layers.conv2.in_channels=128 'logger.tags=[part1, fft, gat, heads]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gat graph_module.conv_layers.conv1.heads=12 graph_module.conv_layers.conv2.in_channels=384 'logger.tags=[part1, fft, gat, heads]'
 
 # - pooling (default: mean)
 python train.py temporal_module=disabled graph_builder=distance graph_module=gat graph_module.pool_type=max 'logger.tags=[part1, fft, gat, pooling]'
