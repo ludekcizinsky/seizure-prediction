@@ -1,0 +1,8 @@
+defaults:
+  - default
+  - _self_
+
+_target_: helpers.models.modules.graph_builder.DistanceGraphBuilder
+
+distance_file: data/distances_3d.csv
+distance_threshold: 0.5
