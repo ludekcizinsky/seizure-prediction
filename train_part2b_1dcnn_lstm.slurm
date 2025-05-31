@@ -19,7 +19,7 @@ cd /home/$USER/netml-project
 source /home/$USER/venvs/netml/bin/activate
 
 # Part 2b: 1D CNN (1 hour per experiment)
-python train.py signal_transform=neural_conv1d_small temporal_module=lstm graph_builder=disabled graph_module=disabled optim.weight_decay=0.1 'logger.tags=[part2b, cnn1d_small]'
-python train.py signal_transform=neural_conv1d_medium temporal_module=lstm graph_builder=disabled graph_module=disabled optim.weight_decay=0.1 'logger.tags=[part2b, cnn1d_medium]'
-python train.py signal_transform=neural_conv1d_large temporal_module=lstm graph_builder=disabled graph_module=disabled optim.weight_decay=0.1 'logger.tags=[part2b, cnn1d_large]'
+python train.py signal_transform=neural_conv1d_small temporal_module=lstm graph_builder=disabled graph_module=disabled optim.weight_decay=0.1 'logger.tags=[part2b, cnn1d_small, lstm]'
+python train.py signal_transform=neural_conv1d_medium temporal_module=lstm graph_builder=disabled graph_module=disabled optim.weight_decay=0.1 'logger.tags=[part2b, cnn1d_medium, lstm]'
+python train.py signal_transform=neural_conv1d_large temporal_module=lstm graph_builder=disabled graph_module=disabled optim.weight_decay=0.1 'logger.tags=[part2b, cnn1d_large, lstm]'
 
