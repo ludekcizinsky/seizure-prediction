@@ -5,6 +5,7 @@ defaults:
   - temporal_module: disabled
   - graph_builder: distance # must be disabled when graph_module is disabled
   - graph_module: gcn 
+  - classifier: disabled
   - _self_
 
 # ==== Training details

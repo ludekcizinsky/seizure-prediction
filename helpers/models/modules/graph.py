@@ -51,7 +51,7 @@ class ModularGraph(nn.Module):
             raise ValueError(f"Unsupported pool_type: {pool_type}")
 
         # optional graph-level classifier
-        if num_classes is not None:
+        if num_classes > 0:
             self.classifier = nn.Linear(self.feature_dim, num_classes)
         else:
             self.classifier = None

@@ -23,6 +23,7 @@ class ModulardModel(nn.Module):
         self.temporal = hydra.utils.instantiate(cfg.temporal_module) if cfg.temporal_module.is_enabled else None
         self.graph_builder = hydra.utils.instantiate(cfg.graph_builder) if cfg.graph_builder.is_enabled else None
         self.graph = hydra.utils.instantiate(cfg.graph_module) if cfg.graph_module.is_enabled else None
+        self.classifier = hydra.utils.instantiate(cfg.classifier) if cfg.classifier.is_enabled else None
 
 
     def forward(self, x):
@@ -36,7 +37,12 @@ class ModulardModel(nn.Module):
         # Only‐graph case
         if self.graph is not None and self.temporal is None:
             graph_batch = self.graph_builder(x)
-            return self.graph(graph_batch)
+            x =  self.graph(graph_batch) # (B*W, hidden_dim)
+            x = self.graph_builder.reshape_gnn_output(x) # (B, W, hidden_dim)
+
+            if self.classifier is not None:
+                x = self.classifier(x)
+            return x
 
         # Both modules case: temp -> graph -> classifier
         raise NotImplementedError("Both modules case is not implemented yet")

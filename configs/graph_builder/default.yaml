@@ -1,1 +1,4 @@
 is_enabled: True
+use_windows: False
+window_size: 100
+stride: 50
