@@ -1,0 +1,35 @@
+defaults:
+  - default
+  - _self_
+
+_target_: helpers.models.modules.temporal.Modular1DCNN
+
+name: neural_conv1d_medium_kernels
+is_neural: true
+
+in_channels: 19
+use_batchnorm: true
+num_classes: 0
+
+conv_layers:
+  # ───────────────────────────────────────────────────────────────────────────
+  # 1) Conv‐Block 1: 19→64 channels; k=7, s=5, p=3 → 3000→600
+  - out_channels: 64
+    kernel_size: 7
+    stride: 5
+    padding: 3
+    pool: false
+
+  # 2) Conv‐Block 2: 64→128 channels; k=5, s=2, p=2 → 600→300
+  - out_channels: 128
+    kernel_size: 5
+    stride: 2
+    padding: 2
+    pool: false
+
+  # 3) Conv‐Block 3: 128→19 channels; k=3, s=1, p=1 → 300→300
+  - out_channels: 19
+    kernel_size: 3
+    stride: 1
+    padding: 1
+    pool: false

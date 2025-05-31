@@ -177,7 +177,7 @@ class Modular1DCNN(nn.Module):
             in_ch = layer.out_channels
 
         self.features = nn.Sequential(*layers)
-        if num_classes is not None:
+        if num_classes > 0 :
             self.classifier = nn.Linear(in_ch, num_classes)
         else:
             self.classifier = None
@@ -195,7 +195,7 @@ class Modular1DCNN(nn.Module):
             x = F.adaptive_avg_pool1d(x, 1).squeeze(-1)
             return self.classifier(x)
         else:
-            return x
+            return x.permute(0, 2, 1)
 
 
 
