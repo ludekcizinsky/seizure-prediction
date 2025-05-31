@@ -5,8 +5,8 @@ defaults:
 _target_: helpers.models.modules.graph_builder.DistanceGraphBuilder
 
 use_windows: True
-window_size: 100
-stride: 50
+window_size: 125 # 0.5s
+stride: 62 # 0.25s
 
 distance_file: data/distances_3d.csv
 distance_threshold: 1

@@ -18,7 +18,7 @@ mkdir -p /scratch/izar/$USER/netml/outputs/slurm
 cd /home/$USER/netml-project
 source /home/$USER/venvs/netml/bin/activate
 
-# Part 2c: Windowed GCN (1 hour per experiment)
-python train.py signal_transform=disabled temporal_module=disabled graph_builder=window_distance graph_module=gcn graph_module.num_classes=0 graph_module.conv_layers.conv1.in_channels=100 classifier=lstm data.batch_size=256 'logger.tags=[part2c, cnn1d_small, lstm]'
+# Part 2c: Windowed GCN (5 hours per experiment)
+python train.py signal_transform=disabled temporal_module=disabled graph_builder=window_distance graph_module=window_gcn classifier=lstm data.batch_size=256 trainer.max_epochs=250 'logger.tags=[part2c, window_gcn, lstm]'
 # python train.py signal_transform=disabled temporal_module=disabled graph_builder=window_distance graph_module=gcn graph_module.num_classes=0 graph_module.conv_layers.conv1.in_channels=100 classifier=lstm data.batch_size=256 'logger.tags=[debug]' data.num_workers=10
 

@@ -1,0 +1,18 @@
+defaults:
+  - default
+  - _self_
+
+_target_: helpers.models.modules.graph.ModularGraph
+conv_layers:
+  conv1:
+    _target_: torch_geometric.nn.GCNConv
+    in_channels: 125
+    out_channels: 128
+  conv2:
+    _target_: torch_geometric.nn.GCNConv
+    in_channels: 128
+    out_channels: 128
+activation: gelu
+use_batchnorm: False
+pool_type: mean
+num_classes: 0
