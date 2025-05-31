@@ -2,19 +2,22 @@ defaults:
   - default
   - _self_
 
+name: neural_patch_tst
+is_neural: true
+
 _target_: helpers.models.modules.temporal.PatchTSTWrapper
 
 num_input_channels: 19
 
-# set to an integer to get logits,
-# set to null to get raw features
-num_targets: 1
+# set to an integer > 0  to get logits,
+# set to 0 to get raw features
+num_targets: 0
 
-context_length:   354
+context_length:   3000
 patch_length:     12
 patch_stride:     12
 num_hidden_layers: 3
-d_model:          128
+d_model:          64
 num_attention_heads: 4
 
 share_embedding:   true

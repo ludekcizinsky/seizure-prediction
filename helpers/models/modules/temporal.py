@@ -2,7 +2,7 @@ import torch
 import math
 import torch.nn as nn
 import torch.nn.functional as F
-from transformers import PatchTSTConfig, PatchTSTForClassification
+from transformers import PatchTSTConfig, PatchTSTForClassification, PatchTSTModel
 
 class LSTM(nn.Module):
 
@@ -110,12 +110,12 @@ class PatchTSTWrapper(nn.Module):
         attention_dropout: float = 0.1,
         positional_dropout: float = 0.1,
         patch_dropout: float = 0.1,
-        **_
+        **kwargs
     ):
         super().__init__()
         cfg = PatchTSTConfig(
             num_input_channels=num_input_channels,
-            num_targets=num_targets or 0,    # dummy if None
+            num_targets=num_targets,
             context_length=context_length,
             patch_length=patch_length,
             patch_stride=patch_stride,
@@ -133,7 +133,7 @@ class PatchTSTWrapper(nn.Module):
             patch_dropout=patch_dropout,
         )
 
-        self.has_classifier = num_targets is not None
+        self.has_classifier = num_targets > 0
 
         if self.has_classifier:
             # standard classification model
@@ -151,8 +151,8 @@ class PatchTSTWrapper(nn.Module):
             return out.prediction_logits       # (B, num_targets)
         else:
             out = self.model(past_values=x, return_dict=True)
-            # last_hidden_state: (B, num_patches, d_model)
-            return out.last_hidden_state
+            # last_hidden_state: (B, num_patches, 19)
+            return out.last_hidden_state.mean(dim=-1).permute(0, 2, 1)
 
 
 class Modular1DCNN(nn.Module):

@@ -31,14 +31,17 @@ def get_datasets(cfg, split="train"):
         norm = partial(normalize_signal, mean=mean, std=std)
         list_of_transforms.append(norm)
         readable_transforms.append("normalize")
-    if cfg.signal_transform.is_enabled:
+    if cfg.signal_transform.is_enabled and not cfg.signal_transform.is_neural:
         signal_transform = instantiate(cfg.signal_transform)
         list_of_transforms.append(signal_transform)
         readable_transforms.append(cfg.signal_transform.name)
     if len(list_of_transforms) > 0:
         signal_transform = make_pipeline(list_of_transforms)
     else:
-        signal_transform = None 
+        signal_transform = None
+
+    if cfg.signal_transform.is_neural:
+        readable_transforms.append(cfg.signal_transform.name)
     print(f"FYI: using the following signal transform: {' -> '.join(readable_transforms)}")
 
     dataset = EEGDataset(
