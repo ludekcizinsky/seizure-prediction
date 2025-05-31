@@ -2,7 +2,7 @@
 #SBATCH --job-name=part2c_window_gcn_lstm
 #SBATCH --output=/scratch/izar/cizinsky/netml/outputs/slurm/%x.%j.out
 #SBATCH --error=/scratch/izar/cizinsky/netml/outputs/slurm/%x.%j.err
-#SBATCH --time=05:00:00
+#SBATCH --time=06:00:00
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=20
 #SBATCH --mem=32G
