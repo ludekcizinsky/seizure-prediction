@@ -14,7 +14,8 @@ class SeizurePredictor(pl.LightningModule):
 
     def forward(self, x):
         x = x.to(next(self.model.parameters()).dtype)
-        return self.model(x)
+        x = self.model(x)
+        return x
 
     def on_train_epoch_start(self):
         # reset buffers

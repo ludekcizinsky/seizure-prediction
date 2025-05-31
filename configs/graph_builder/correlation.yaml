@@ -1,0 +1,7 @@
+defaults:
+  - default
+  - _self_
+
+_target_: helpers.models.modules.graph_builder.CorrelationGraphBuilder
+
+correlation_threshold: 0.5

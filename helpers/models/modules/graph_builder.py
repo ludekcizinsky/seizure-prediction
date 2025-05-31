@@ -186,7 +186,7 @@ class DistanceGraphBuilder(BaseGraphBuilder):
         Args:
             If self.use_windows == False:
                 x: torch.Tensor of shape (B, F, N).  Each sample i is (F, N); we
-                   transpose → (N, F) to form node‐feature matrix for graph i.
+                   transpose → (N, F) to form node-feature matrix for graph i.
             If self.use_windows == True:
                 x: torch.Tensor of shape (B, T, N).  We chunk into windows of
                    length=self.window_size with step=self.stride, producing
@@ -218,36 +218,120 @@ class DistanceGraphBuilder(BaseGraphBuilder):
         return Batch.from_data_list(data_list)
 
 
-class CorrelationGraphBuilder(nn.Module):
-    def __init__(self, correlation_threshold, **kwargs):
-        super().__init__()
+class CorrelationGraphBuilder(BaseGraphBuilder):
+    """
+    Builds graphs based on Pearson correlation between node features.
+    Inherits windowing functionality from BaseGraphBuilder.
+
+    If use_windows=False:
+        - Forward expects x of shape (B, F, N), where F is feature dim, N is number of nodes.
+    If use_windows=True:
+        - Forward expects x of shape (B, T, N), where T is time length; it will chunk into windows:
+          (B, T, N) → (B, W, N, window_size) → flatten to (B*W, N, window_size).
+    """
+    def __init__(
+        self,
+        correlation_threshold: float,
+        use_windows: bool = False,
+        window_size: int = 100,
+        stride: int = 50,
+        **kwargs
+    ):
+        super().__init__(use_windows=use_windows, window_size=window_size, stride=stride)
         self.correlation_threshold = correlation_threshold
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> Batch:
+        """
+        Args:
+            If use_windows=False: x is (B, F, N)
+            If use_windows=True:  x is (B, T, N)
+
+        Returns:
+            Batch of graphs, one per sample (if no windows) or one per window (if windows).
+            Each graph has N nodes and edge weights based on thresholded correlation.
+        """
         data_list = []
-        for node_features in x:
-            corr = np.corrcoef(node_features.numpy())
-            np.fill_diagonal(corr, 0)
-            mask = np.abs(corr) >= self.correlation_threshold
-            adj = corr * mask
-            adj_tensor = torch.tensor(adj, dtype=torch.float)
-            edge_index, edge_weight = dense_to_sparse(adj_tensor)
-            data = Data(x=node_features, edge_index=edge_index, edge_attr=edge_weight)
-            data_list.append(data)
+
+        # Prepare x as (num_graphs, N, F)
+        x_prepared = self.prepare_node_features(x)
+
+        for node_feats in x_prepared:
+            # node_feats: shape = (N, F)
+            # Compute Pearson correlation matrix between N rows
+            # Ensure float32
+            nf = node_feats.float()
+            # torch.corrcoef expects shape (N, F) and returns (N, N)
+            corr = torch.corrcoef(nf)
+            # Zero out diagonal
+            corr.fill_diagonal_(0.0)
+            # Threshold to build adjacency
+            mask = torch.abs(corr) >= self.correlation_threshold
+            adj = corr * mask.to(corr.dtype)
+            edge_index, edge_weight = dense_to_sparse(adj)
+            data_list.append(
+                Data(
+                    x=node_feats,          # (N, F)
+                    edge_index=edge_index, # (2, E)
+                    edge_attr=edge_weight  # (E,)
+                )
+            )
+
         return Batch.from_data_list(data_list)
 
 
-class LearnableGraphLearner(nn.Module):
-    def __init__(self, num_nodes):
-        super().__init__()
-        self.adj = nn.Parameter(torch.randn(num_nodes, num_nodes))
+class LearnableGraphLearner(BaseGraphBuilder):
+    """
+    Learns a fully-connected adjacency matrix via a trainable parameter.
+    Inherits windowing functionality from BaseGraphBuilder.
 
-    def forward(self, x):
+    If use_windows=False:
+        - Forward expects x of shape (B, F, N).
+    If use_windows=True:
+        - Forward expects x of shape (B, T, N) and chunks into windows.
+    """
+    def __init__(
+        self,
+        num_nodes: int,
+        use_windows: bool = False,
+        window_size: int = 100,
+        stride: int = 50,
+        **kwargs
+    ):
+        super().__init__(use_windows=use_windows, window_size=window_size, stride=stride)
+        # Learnable adjacency logits, shape (N, N)
+        self.adj_logits = nn.Parameter(torch.randn(num_nodes, num_nodes))
+
+    def forward(self, x: torch.Tensor) -> Batch:
+        """
+        Args:
+            If use_windows=False: x is (B, F, N)
+            If use_windows=True:  x is (B, T, N)
+
+        Returns:
+            Batch of graphs, one per sample (or per window if windowing).
+            Edges are learned via a sigmoid( adj_logits ) symmetric matrix.
+        """
         data_list = []
-        for node_features in x:
-            adj = torch.sigmoid(self.adj)
-            adj = (adj + adj.T) / 2  # Make symmetric
-            edge_index, edge_weight = dense_to_sparse(adj)
-            data = Data(x=node_features, edge_index=edge_index, edge_attr=edge_weight)
-            data_list.append(data)
+
+        # Prepare x as (num_graphs, N, F)
+        x_prepared = self.prepare_node_features(x)
+
+        # Compute symmetric adjacency once
+        adj = torch.sigmoid(self.adj_logits)
+        adj = (adj + adj.T) / 2.0
+        # Zero diagonal to avoid self-loops
+        adj = adj.fill_diagonal_(0.0)
+
+        edge_index, edge_weight = dense_to_sparse(adj)
+
+        for node_feats in x_prepared:
+            # node_feats: shape = (N, F)
+            data_list.append(
+                Data(
+                    x=node_feats,          # (N, F)
+                    edge_index=edge_index, # (2, E)
+                    edge_attr=edge_weight  # (E,)
+                )
+            )
+
         return Batch.from_data_list(data_list)

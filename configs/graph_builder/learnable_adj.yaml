@@ -1,0 +1,7 @@
+defaults:
+  - default
+  - _self_
+
+_target_: helpers.models.modules.graph_builder.LearnableGraphLearner
+
+num_nodes: 19

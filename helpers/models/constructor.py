@@ -42,6 +42,11 @@ class ModulardModel(nn.Module):
 
             if self.classifier is not None:
                 x = self.classifier(x)
+
+            if len(x.shape) == 3:
+                # (B, 1, 1) → (B, 1)
+                x = x.squeeze(1)
+
             return x
 
         # Both modules case: temp -> graph -> classifier
