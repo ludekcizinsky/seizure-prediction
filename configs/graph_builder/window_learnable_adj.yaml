@@ -1,0 +1,11 @@
+defaults:
+  - default
+  - _self_
+
+_target_: helpers.models.modules.graph_builder.LearnableGraphLearner
+
+use_windows: True
+window_size: 125 # 0.5s
+stride: 62 # 0.25s
+
+num_nodes: 19

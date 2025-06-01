@@ -6,10 +6,10 @@ In this module, we prepare the data for our graph models.
 import torch.nn as nn
 import torch
 from torch_geometric.utils import dense_to_sparse
-import numpy as np
 from torch_geometric.data import Data, Batch
 import pandas as pd
 
+from tqdm import tqdm
 
 class BaseGraphBuilder(nn.Module):
     """
@@ -255,7 +255,7 @@ class CorrelationGraphBuilder(BaseGraphBuilder):
         # Prepare x as (num_graphs, N, F)
         x_prepared = self.prepare_node_features(x)
 
-        for node_feats in x_prepared:
+        for node_feats in tqdm(x_prepared, desc="Building graphs"):
             # node_feats: shape = (N, F)
             # Compute Pearson correlation matrix between N rows
             # Ensure float32
