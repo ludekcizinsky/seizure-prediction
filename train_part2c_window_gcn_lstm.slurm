@@ -21,7 +21,6 @@ source /home/$USER/venvs/netml/bin/activate
 # Part 2c: Windowed GCN (5 hours per experiment)
 # -- Initial try with 250 epochs, validation every 25 epochs
 # python train.py signal_transform=disabled temporal_module=disabled graph_builder=window_distance graph_module=window_gcn classifier=lstm data.batch_size=256 trainer.max_epochs=250 'logger.tags=[part2c, window_gcn, lstm]'
-# python train.py signal_transform=disabled temporal_module=disabled graph_builder=window_distance graph_module=gcn graph_module.num_classes=0 graph_module.conv_layers.conv1.in_channels=100 classifier=lstm data.batch_size=256 'logger.tags=[debug]' data.num_workers=10
 
 # -- 50 epochs, validation every 2 epochs, ~90 min
 python train.py signal_transform=disabled temporal_module=disabled graph_builder=window_distance graph_module=window_gcn classifier=lstm data.batch_size=256 trainer.max_epochs=50 trainer.check_val_every_n_epoch=2 optim.warmup_epochs=5 'logger.tags=[part2c, window_gcn, lstm, only_50_epochs]'
