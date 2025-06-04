@@ -4,6 +4,7 @@ from torch_geometric.nn import (
     global_max_pool,
     global_add_pool,
 )
+from torch_geometric.utils import to_dense_batch
 import torch.nn.functional as F
 import hydra
 
@@ -73,15 +74,13 @@ class ModularGraph(nn.Module):
         if self.pool_type != "learned":
             g = self.pool_fn(x, batch)
         else:
-            batch_size = x.shape[0]  # shape: (batch_size, 19, feature_dim)
+            x_dense, mask = to_dense_batch(x, batch)  # mask is [batch_size, max_nodes]
+            batch_size, num_nodes, feat_dim = x_dense.shape
 
-            # Flatten each window and pass through fully connected layer
-            x = x.view(batch_size, -1)  # shape: (batch_size, 19 * feature_dim)
-            
-            # Make the tensor contiguous before passing to FC layer
-            x = x.contiguous()
+            # Flatten node features per graph
+            x_flat = x_dense.view(batch_size, -1)  # shape: [batch_size, num_nodes * feat_dim]
 
-            g = F.gelu(self.pool_fn(x))
+            g = F.gelu(self.pool_fn(x_flat))
 
         # return logits if head exists, else embeddings
         return self.classifier(g) if self.classifier is not None else g
