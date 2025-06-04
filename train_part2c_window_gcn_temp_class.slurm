@@ -1,13 +1,12 @@
 #!/bin/bash
-#SBATCH --job-name=part2c_window_gcn_lstm
-#SBATCH --output=/scratch/izar/cizinsky/netml/outputs/slurm/%x.%j.out
-#SBATCH --error=/scratch/izar/cizinsky/netml/outputs/slurm/%x.%j.err
+#SBATCH --job-name=part2c_window_gcn_temp_class
+#SBATCH --output=/scratch/izar/mlebras/netml/outputs/slurm/%x.%j.out
+#SBATCH --error=/scratch/izar/mlebras/netml/outputs/slurm/%x.%j.err
 #SBATCH --time=12:00:00
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=20
 #SBATCH --mem=32G
 #SBATCH --ntasks=1
-#SBATCH --account=master
 
 USER=mlebras
 
@@ -15,8 +14,8 @@ USER=mlebras
 mkdir -p /scratch/izar/$USER/netml/outputs/slurm
 
 # Activate virtual environment
-cd /home/$USER/netml-project
-source /home/$USER/venvs/netml/bin/activate
+cd /home/$USER/nml-project
+source /home/$USER/nml-project/venvs/netml/bin/activate
 
 # Part 2c: Windowed GCN (5 hours per experiment)
 # -- Initial try with 250 epochs, validation every 25 epochs
