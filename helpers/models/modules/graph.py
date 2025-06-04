@@ -4,8 +4,8 @@ from torch_geometric.nn import (
     global_max_pool,
     global_add_pool,
 )
+import torch.nn.functional as F
 import hydra
-
 
 class ModularGraph(nn.Module):
     def __init__(
@@ -21,6 +21,7 @@ class ModularGraph(nn.Module):
         self.use_batchnorm = use_batchnorm
         self.act_fn = nn.GELU() if activation.lower()=="gelu" else nn.ReLU()
         self.convs = nn.ModuleList()
+        self.pool_type = pool_type
         if use_batchnorm:
             self.bns = nn.ModuleList()
 
@@ -47,6 +48,8 @@ class ModularGraph(nn.Module):
             self.pool_fn = global_max_pool
         elif pool_type in ("sum", "add"):
             self.pool_fn = global_add_pool
+        elif pool_type == "learned":
+            self.pool_fn = nn.Linear(self.feature_dim*19,self.feature_dim)
         else:
             raise ValueError(f"Unsupported pool_type: {pool_type}")
 
@@ -67,7 +70,18 @@ class ModularGraph(nn.Module):
             x = self.act_fn(x)
 
         # pool to graph-level embedding
-        g = self.pool_fn(x, batch)
+        if self.pool_type != "learned":
+            g = self.pool_fn(x, batch)
+        else:
+            batch_size = x.shape[0]  # shape: (batch_size, 19, feature_dim)
+
+            # Flatten each window and pass through fully connected layer
+            x = x.view(batch_size, -1)  # shape: (batch_size, 19 * feature_dim)
+            
+            # Make the tensor contiguous before passing to FC layer
+            x = x.contiguous()
+
+            g = F.gelu(self.pool_fn(x))
 
         # return logits if head exists, else embeddings
         return self.classifier(g) if self.classifier is not None else g

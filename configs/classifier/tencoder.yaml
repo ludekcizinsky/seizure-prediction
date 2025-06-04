@@ -1,0 +1,14 @@
+defaults:
+  - default
+  - _self_
+
+_target_: helpers.models.modules.temporal.ModularTransformerEncoder
+
+in_channels: 128
+
+transformer_dim: 64
+num_heads: 4
+num_layers: 2
+dropout: 0.1
+
+num_classes: 1

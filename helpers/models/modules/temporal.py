@@ -33,6 +33,53 @@ class LSTM(nn.Module):
             return logits
         else:
             return last_timestep
+        
+class LSTM_Attention(nn.Module):
+
+    def __init__(self, input_dim, hidden_dim, num_layers, bidirectional, dropout, attn_dim, num_classes, **kwargs):
+        super().__init__()
+        self.lstm = nn.LSTM(
+            input_dim, 
+            hidden_dim, 
+            num_layers, 
+            batch_first=True, 
+            bidirectional=bidirectional, 
+            dropout=dropout
+        )
+
+        self.attention_mlp = nn.Linear(hidden_dim*(1+int(bidirectional)), attn_dim)
+        self.context_vector = nn.Parameter(torch.randn(attn_dim))
+
+        if num_classes is not None:
+            self.classifier = nn.Linear(hidden_dim*(1+int(bidirectional)), num_classes)
+        else:
+            self.classifier = None
+
+
+    def forward(self, x):
+        """
+        x shape: [batch_size, seq_len, input_dim]
+        """
+        out, (h_n, c_n) = self.lstm(x)  # out shape: [batch_size, seq_len, hidden_dim]
+
+        u = torch.tanh(self.attention_mlp(out))  # (batch_size, seq_len, attn_dim)
+
+        # Step 2: compute scores: dot(u_t, u_w)
+        # context_vector: (attn_dim,)
+        scores = torch.matmul(u, self.context_vector)  # (batch_size, seq_len)
+
+        # Step 3: softmax over time
+        alpha = F.softmax(scores, dim=1)  # (batch_size, seq_len)
+
+        # Step 4: weighted sum of h
+        s = torch.bmm(alpha.unsqueeze(1), out)  # (batch_size, 1, hidden_dim)
+        s = s.squeeze(1)
+
+        if self.classifier is not None:
+            logits = self.classifier(s)  # [batch_size, 1]
+            return logits
+        else:
+            return s
     
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=500):

@@ -1,0 +1,12 @@
+defaults:
+  - default
+  - _self_
+
+_target_: helpers.models.modules.temporal.LSTM_Attention
+input_dim: 128
+hidden_dim: 64
+num_layers: 3
+dropout: 0.3
+num_classes: 1
+bidirectional: False
+attn_dim: 64
