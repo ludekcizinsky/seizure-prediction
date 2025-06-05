@@ -12,6 +12,8 @@ defaults:
 # General info
 username: 'cizinsky' # your izar username (relevant only on izar)
 seed: 42
+n_folds: 1
+fold_id: 0
 debug: False # to avoid logging into wandb, instead we log locally using Tensorboard
 output_dir: /scratch/izar/${username}/netml/outputs # will be created if it doesn't exist
 repo_root: /home/${username}/netml-project/ # path to the repo on your machine
@@ -22,7 +24,7 @@ logger:
   # do NOT change project or entity, this ensures that we log experiments to the same project and entity
   # the project is accessible to public,therefore everyone can log there
   # w&b automatically figures your username from the environment variable WANDB_API_KEY
-  project: seizure-prediction 
+  project: seizure-prediction
   entity: ludekcizinsky 
   tags: [part1] # practical when trying to filter experiments
 

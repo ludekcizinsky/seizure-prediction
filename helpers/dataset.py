@@ -2,14 +2,14 @@ from seiz_eeg.dataset import EEGDataset
 
 from functools import partial
 
-from torch.utils.data import DataLoader
-from torch.utils.data import random_split
-from torch.utils.data import WeightedRandomSampler
+from torch.utils.data import DataLoader, Subset, random_split, WeightedRandomSampler
 
 import torch
 from hydra.utils import instantiate
 import numpy as np
 import pandas as pd
+
+from sklearn.model_selection import KFold
 
 from helpers.filters import normalize_signal, make_pipeline
 
@@ -55,7 +55,17 @@ def get_datasets(cfg, split="train"):
     if split == "test":
         return dataset
 
-    # Split
+    # If using cross-validation, override random split with KFold
+    if cfg.n_folds > 1 and split == "train":
+        indices = np.arange(len(dataset))
+        kf = KFold(n_splits=cfg.n_folds, shuffle=True, random_state=cfg.seed)
+        splits = list(kf.split(indices))
+        train_idx, val_idx = splits[cfg.fold_id]
+        train_dataset = Subset(dataset, train_idx)
+        val_dataset = Subset(dataset, val_idx)
+        return train_dataset, val_dataset
+
+    # Default fallback split (non-cross-validation)
     train_size = int(cfg.data.trn_frac * len(dataset))
     val_size = len(dataset) - train_size
     generator = torch.Generator().manual_seed(cfg.seed)
