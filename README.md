@@ -82,7 +82,7 @@ Documentation and instructions relevant to the project (e.g., course project bri
 Jupyter notebooks for experimentation, data exploration, or preliminary modeling.
 
 #### `trainings/`
-Contains `.slurm` scripts for queuing jobs on a SLURM cluster (e.g., SCITAS Izar). These are used for model training on compute clusters.
+Contains `.slurm` scripts for queuing jobs on a SLURM cluster (e.g., SCITAS Izar). These are used for model training on compute clusters. They can be used to reproduce some of our results by launching new trainings
 
 #### `assets/`
 Folder containing images used in this README
