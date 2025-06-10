@@ -4,6 +4,8 @@ This project explores graph-based and non-graph-based approaches to EEG time-ser
 
 Epileptic seizure detection from electroencephalography (EEG) is challenging due to the signals high dimensionality, noise, and non-stationary nature. While traditional deep learning methods treat EEG channels independently, graph-based models can encode spatial relationships between electrodes. This study compares graph-based and non-graph-based approaches using data collected under the 10–20 system. The graph-based pipeline includes sliding window preprocessing, a distance-based adjacency matrix, a Graph Convolutional Network (GCN) for spatial feature extraction, and a Long Short-Term Memory (LSTM) network with attention for temporal modeling.
 
+![Method Overview](assets/method.png)
+
 ## Repository
 
 ### Project Structure
@@ -39,6 +41,7 @@ Epileptic seizure detection from electroencephalography (EEG) is challenging due
 ├── notebooks/
 ├── trainings/
 |   └── *.slurm
+├── assets/
 ├── requirements.txt
 ├── submit.sh
 ├── train.py
@@ -75,11 +78,14 @@ Core implementation directory for data processing and model construction.
 #### `instructions/`
 Documentation and instructions relevant to the project (e.g., course project brief).
 
-#### `notebooks`
+#### `notebooks/`
 Jupyter notebooks for experimentation, data exploration, or preliminary modeling.
 
-#### `trainings`
+#### `trainings/`
 Contains `.slurm` scripts for queuing jobs on a SLURM cluster (e.g., SCITAS Izar). These are used for model training on compute clusters.
+
+#### `assets/`
+Folder containing images used in this README
 
 #### `requirements.txt`
 List of Python dependencies for the project.
