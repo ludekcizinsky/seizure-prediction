@@ -165,3 +165,51 @@ Finally, to submit the predictions, run:
 ```bash
 ./submit.sh <run_id>
 ```
+
+### Results
+
+We started with the initial set of graph and non-graph models, preprocessed the signal using **FFT filtering as signal transform** reducing the initial time dimension from 3000 to 354. This is then fed into temporal modules or graph based model. 
+
+**RQ1: Can basic graph-based approach beat non-graph ones?**
+
+- Find the **final results** [here](https://wandb.ai/ludekcizinsky/seizure-prediction/table?nw=suabf3zv84)
+
+So far, we have assumed that we can transform the raw input time signal into spectral domain using FFT filter. We hypothesise we can do possibly better using different (non)-neural approaches. We therefore use the best performing graph and non-graph modules, from the previous section and ablate different non-neural approaches for time-signal processing.
+
+**RQ2A: Can we improve the downstream performance by designing a better time signal extractor?**
+
+- Find the **final results** [here](https://wandb.ai/ludekcizinsky/seizure-prediction/table?nw=5wco4fhmr92)
+
+**RQ2B: Can neural based time signal processor beat the non-neural baselines?**
+
+- Find the **final results** [here](https://wandb.ai/ludekcizinsky/seizure-prediction/table?nw=dyca2oapy3f)
+
+So far, we have assumed that it is a good idea to compress the time signal using some temporal module into D-dimensional embedding for each channel, thus our pipeline looked as:
+
+**(B, T, 19) → temporal (e.g. 1D cnn): (B, D, 19) → graph: (B, D’) → classifier: (B, 1)**
+
+However, this drastically reduces amount of information depending on the hidden dimension D. We therefore hypothesise that we can arrive at better solution by processing the time signal via splitting into windows and then process each window independently via GNN:
+
+**(B, T, 19) → window split: (B, W, T’, 19) → graph: (B, W, D) → classifier: (B, 1)**
+
+**RQ2C: Can window based aggregation combined with graph processing beat traditional temporal modules (e.g. 1D CNN) for processing time signal?**
+
+- Find the **final results** [here](https://wandb.ai/ludekcizinsky/seizure-prediction/table?nw=ggeq03ejzq8)
+
+We have obtained promising results using window split mechanism, and found that our default configuration using window size 125 and window stride 62 overall still the best configuration despite attempts in the previous section. Therefore, in this section, we investigate the role of different classifier. 
+
+**RQ2D: How to aggregate input of shape (B, W, D) where W is the number of windows each represented via D dimensional vector ?**
+
+- Find the **final results** [here](https://wandb.ai/ludekcizinsky/seizure-prediction/table?nw=8wpuot28082)
+
+So far, we have only focused on processing the time signal, however we also have some priors about the setup of the electrodes, which we want to try to exploit and see if this can lead to improved performance. 
+
+**RQ3: Can we improve graph based approach performance by integrating some type of prior into the graph structure?**
+
+- Find the **final results** [here](https://wandb.ai/ludekcizinsky/seizure-prediction/table?nw=3zifnpxitpe)
+
+Throughout our experiments, we have noticed significant difference between the validation and test performance. We train and validate on the same ratio between positive and negative examples (80 / 20). In order to obtain more robust performance results, we therefore decided to re-train using cross-validation some of our best performing models and observe if the performance variance between validation and test set decreases. 
+
+**RQ4: Can we reduce the variance between validation and test set performance?**
+
+- Find the **final results** [here](https://wandb.ai/ludekcizinsky/seizure-prediction/table?nw=f8xdddqe51c)
