@@ -10,7 +10,7 @@ defaults:
 
 # ==== Training details
 # General info
-username: 'cizinsky' # your izar username (relevant only on izar)
+username: 'mlebras' # your izar username (relevant only on izar)
 seed: 42
 n_folds: 1
 fold_id: 0

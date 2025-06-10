@@ -19,38 +19,33 @@ source /home/$USER/nml-project/venvs/netml/bin/activate
 
 # Part 1: GCN ablations (1 epoch = ~3s)
 # - baseline
-# python train.py temporal_module=disabled graph_builder=distance graph_module=gcn 'logger.tags=[part1, fft, gcn, baseline]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gcn 'logger.tags=[part1, fft, gcn, baseline]'
 
-python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_builder.distance_threshold=0.5 graph_module.conv_layers.conv1.out_channels=128 graph_module.conv_layers.conv2.in_channels=128 graph_module.conv_layers.conv2.out_channels=128 graph_module.pool_type=learned 'logger.tags=[part1, fft, gcn, gcn_0_5_dist, learned_pool]'
-python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_builder.distance_threshold=1 graph_module.pool_type=learned 'logger.tags=[part1, fft, gcn, learned_pool]'
-
-python train.py signal_transform=disabled temporal_module=disabled graph_builder=window_correlation graph_module=window_gcn graph_module.pool_type=learned classifier=lstm_att data.batch_size=256 trainer.max_epochs=50 trainer.check_val_every_n_epoch=2 optim.warmup_epochs=5 'logger.tags=[part2c, window_gcn, lstm_att, learned_pool, correlation_adj]'
-python train.py signal_transform=disabled temporal_module=disabled graph_builder=window_learnable_adj graph_module=window_gcn graph_module.pool_type=learned classifier=lstm_att data.batch_size=256 trainer.max_epochs=50 trainer.check_val_every_n_epoch=2 optim.warmup_epochs=5 'logger.tags=[part2c, window_gcn, lstm_att, learned_pool, learned_adj]'
 # - lr (default: 5e-4)
-# python train.py  temporal_module=disabled graph_builder=distance graph_module=gcn optim.lr=1e-4 'logger.tags=[part1, fft, gcn_0_5_dist, lr]'
-# python train.py temporal_module=disabled graph_builder=distance graph_module=gcn optim.lr=1e-5 'logger.tags=[part1, fft, gcn_0_5_dist, lr]'
+python train.py  temporal_module=disabled graph_builder=distance graph_module=gcn optim.lr=1e-4 'logger.tags=[part1, fft, gcn_0_5_dist, lr]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gcn optim.lr=1e-5 'logger.tags=[part1, fft, gcn_0_5_dist, lr]'
 
 # # - weight decay (default: 0.0)
-# python train.py temporal_module=disabled graph_builder=distance graph_module=gcn optim.weight_decay=0.1 'logger.tags=[part1, fft, gcn_0_5_dist, wd]'
-# python train.py temporal_module=disabled graph_builder=distance graph_module=gcn optim.weight_decay=0.2 'logger.tags=[part1, fft, gcn_0_5_dist, wd]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gcn optim.weight_decay=0.1 'logger.tags=[part1, fft, gcn_0_5_dist, wd]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gcn optim.weight_decay=0.2 'logger.tags=[part1, fft, gcn_0_5_dist, wd]'
 
 # # - data normalization (default: False)
-# python train.py temporal_module=disabled graph_builder=distance graph_module=gcn data.normalize=True 'logger.tags=[part1, fft, gcn_0_5_dist, normalize]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gcn data.normalize=True 'logger.tags=[part1, fft, gcn_0_5_dist, normalize]'
 
 # # - batch normalisation (default: False)
-# python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.use_batchnorm=True 'logger.tags=[part1, fft, gcn_0_5_dist, batchnorm]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.use_batchnorm=True 'logger.tags=[part1, fft, gcn_0_5_dist, batchnorm]'
 
 # # - hidden dim (default: 64)
-# python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.conv_layers.conv1.out_channels=32 graph_module.conv_layers.conv2.in_channels=32 graph_module.conv_layers.conv2.out_channels=32 'logger.tags=[part1, fft, gcn_0_5_dist, hidden_dim]'
-# python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.conv_layers.conv1.out_channels=128 graph_module.conv_layers.conv2.in_channels=128 graph_module.conv_layers.conv2.out_channels=128 'logger.tags=[part1, fft, gcn_0_5_dist, hidden_dim]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.conv_layers.conv1.out_channels=32 graph_module.conv_layers.conv2.in_channels=32 graph_module.conv_layers.conv2.out_channels=32 'logger.tags=[part1, fft, gcn_0_5_dist, hidden_dim]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.conv_layers.conv1.out_channels=128 graph_module.conv_layers.conv2.in_channels=128 graph_module.conv_layers.conv2.out_channels=128 'logger.tags=[part1, fft, gcn_0_5_dist, hidden_dim]'
 
-# # - pooling (default: mean)
-# python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.pool_type=max 'logger.tags=[part1, fft, gcn_0_5_dist, pooling]'
-# python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.pool_type=add 'logger.tags=[part1, fft, gcn_0_5_dist, pooling]'
+# - pooling (default: mean)
+python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.pool_type=max 'logger.tags=[part1, fft, gcn_0_5_dist, pooling]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.pool_type=add 'logger.tags=[part1, fft, gcn_0_5_dist, pooling]'
 
 # # - distance threshold (default: 1)
-# python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_builder.distance_threshold=1.5 'logger.tags=[part1, fft, gcn, distance_threshold]'
-# python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_builder.distance_threshold=0.5 'logger.tags=[part1, fft, gcn, distance_threshold]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_builder.distance_threshold=1.5 'logger.tags=[part1, fft, gcn, distance_threshold]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gcn graph_builder.distance_threshold=0.5 'logger.tags=[part1, fft, gcn, distance_threshold]'
 
 # # - weighted sampler (default: False)
-# python train.py temporal_module=disabled graph_builder=distance graph_module=gcn data.use_weighted_sampler=True 'logger.tags=[part1, fft, gcn_0_5_dist, weighted_sampler]'
+python train.py temporal_module=disabled graph_builder=distance graph_module=gcn data.use_weighted_sampler=True 'logger.tags=[part1, fft, gcn_0_5_dist, weighted_sampler]'

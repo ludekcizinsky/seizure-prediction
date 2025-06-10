@@ -18,9 +18,9 @@ cd /home/$USER/nml-project
 source /home/$USER/nml-project/venvs/netml/bin/activate
 
 # gcn ~ 1h per fold
-# python train.py n_folds=3 fold_id=0 temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.pool_type=learned  'logger.tags=[part1, fft, gcn, learned_pool, fold_0]'
-# python train.py n_folds=3 fold_id=1 temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.pool_type=learned 'logger.tags=[part1, fft, gcn, learned_pool, fold_1]'
-# python train.py n_folds=3 fold_id=2 temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.pool_type=learned 'logger.tags=[part1, fft, gcn, learned_pool, fold_2]'
+python train.py n_folds=3 fold_id=0 temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.pool_type=learned  'logger.tags=[part1, fft, gcn, learned_pool, fold_0]'
+python train.py n_folds=3 fold_id=1 temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.pool_type=learned 'logger.tags=[part1, fft, gcn, learned_pool, fold_1]'
+python train.py n_folds=3 fold_id=2 temporal_module=disabled graph_builder=distance graph_module=gcn graph_module.pool_type=learned 'logger.tags=[part1, fft, gcn, learned_pool, fold_2]'
 
 python train.py n_folds=3 fold_id=0 temporal_module=disabled graph_builder=distance graph_module=gat graph_module.pool_type=learned  'logger.tags=[part1, fft, gat, learned_pool, fold_0]'
 python train.py n_folds=3 fold_id=1 temporal_module=disabled graph_builder=distance graph_module=gat graph_module.pool_type=learned 'logger.tags=[part1, fft, gat, learned_pool, fold_1]'
