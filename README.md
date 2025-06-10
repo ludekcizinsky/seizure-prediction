@@ -1,3 +1,95 @@
+# Seizure Prediction
+
+This project explores graph-based and non-graph-based approaches to EEG time-series data, specifically targeting seizure detection tasks using data from the Temple University Hospital EEG Seizure Corpus (TUSZ). The project is developed in the context of the EE-452 Network Machine Learning course at EPFL.
+
+Epileptic seizure detection from electroencephalography (EEG) is challenging due to the signals high dimensionality, noise, and non-stationary nature. While traditional deep learning methods treat EEG channels independently, graph-based models can encode spatial relationships between electrodes. This study compares graph-based and non-graph-based approaches using data collected under the 10–20 system. The graph-based pipeline includes sliding window preprocessing, a distance-based adjacency matrix, a Graph Convolutional Network (GCN) for spatial feature extraction, and a Long Short-Term Memory (LSTM) network with attention for temporal modeling.
+
+## Repository
+
+### Project Structure
+
+```
+.
+├── configs/
+│   ├── classifier
+|   |   └── *.yaml
+│   ├── graph_builder
+|   |   └── *.yaml
+│   ├── graph_module
+|   |   └── *.yaml
+│   ├── signal_transform
+|   |   └── *.yaml
+|   ├── temporal_module
+|   |   └── *.yaml
+|   └── train.yaml
+├── data/
+├── helpers/
+|   ├── models
+|   |   ├── modules
+|   |   |   ├── graph_builder.py
+|   |   |   ├── graph.py
+|   |   |   └── temporal.py
+|   |   └── constructor.py
+|   ├── dataset.py
+|   ├── filters.py
+|   ├── pl_module.py
+|   ├── utils.py
+|   └── callbacks.py
+├── instructions/
+├── notebooks/
+├── trainings/
+|   └── *.slurm
+├── requirements.txt
+├── submit.sh
+├── train.py
+└── README.md
+```
+
+### Folder and File Description
+
+#### `configs/`
+
+Contains all configuration files used by Hydra for experiment management. Each subfolder corresponds to a module of the system:
+- `classifier/`, `graph_builder/`, `graph_module/`, `signal_transform/`, `temporal_module/`: YAML files defining the configuration for each respective component.
+- `train.yaml`: Top-level training configuration aggregating the submodules.
+
+#### `data/`
+
+Directory intended for storing datasets, particularly EEG recordings and graph structures derived from the TUSZ corpus as well as electrodes distances, channels' means and standard deviations for normalization.
+
+#### `helpers/`
+
+Core implementation directory for data processing and model construction.
+
+- `models/modules/`:
+    - `graph_builder.py`: Logic for constructing EEG-based graphs.
+    - `graph.py`: Defines graph-related model architectures or utilities.
+    - `temporal.py`: Modules for capturing temporal dynamics (e.g., LSTMs or transformers).
+- `constructor.py`: Integrates model modules into a full model pipeline.
+- `dataset.py`: Data loading and preprocessing logic.
+- `filters.py`: Signal filtering tools.
+- `pl_module.py`: PyTorch Lightning module for training and evaluation.
+- `utils.py`: Helper utilities for logging, metrics, etc.
+- `callbacks.py`: Callbacks for model checkpointing, early stopping, etc.
+
+#### `instructions/`
+Documentation and instructions relevant to the project (e.g., course project brief).
+
+#### `notebooks`
+Jupyter notebooks for experimentation, data exploration, or preliminary modeling.
+
+#### `trainings`
+Contains `.slurm` scripts for queuing jobs on a SLURM cluster (e.g., SCITAS Izar). These are used for model training on compute clusters.
+
+#### `requirements.txt`
+List of Python dependencies for the project.
+
+#### `submit.sh`
+Submission script wrapper to submit models' predictions.
+
+#### `train.py`
+Main script for initiating model training using configurations and modules defined above.
+
 ### ⚙️ Environment Setup
 
 First, move data to your scratch directory (make sure to replace username with your actual `izar` username):
